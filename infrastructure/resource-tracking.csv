@@ -1,0 +1,89 @@
+Resource Name,Resource Type,Environment,Resource Group,Region,Purpose,Status,Priority,Owner,Est. Cost/Month,Notes
+rg-network-rewn-prod-cin,Resource Group,Production,N/A,CIN,Networking,Planned,High,Network Admin,0,Primary networking RG
+rg-network-rewn-dev-cin,Resource Group,Development,N/A,CIN,Networking,Planned,Medium,Network Admin,0,Dev networking RG
+rg-aks-rewn-prod-cin,Resource Group,Production,N/A,CIN,AKS Compute,Planned,High,K8s Admin,0,Production AKS RG
+rg-aks-rewn-dev-cin,Resource Group,Development,N/A,CIN,AKS Compute,Planned,Medium,K8s Admin,0,Dev AKS RG
+rg-db-rewn-prod-cin,Resource Group,Production,N/A,CIN,Databases,Planned,High,DBA,0,Production databases RG
+rg-db-rewn-dev-cin,Resource Group,Development,N/A,CIN,Databases,Planned,Medium,DBA,0,Dev databases RG
+rg-storage-rewn-prod-cin,Resource Group,Production,N/A,CIN,Storage,Planned,High,Storage Admin,0,Production storage RG
+rg-storage-rewn-dev-cin,Resource Group,Development,N/A,CIN,Storage,Planned,Medium,Storage Admin,0,Dev storage RG
+rg-security-rewn-prod-cin,Resource Group,Production,N/A,CIN,Security,Planned,High,Security Officer,0,Production security RG
+rg-monitor-rewn-prod-cin,Resource Group,Production,N/A,CIN,Monitoring,Planned,High,Monitoring Admin,0,Production monitoring RG
+rg-shared-rewn-prod-cin,Resource Group,Production,N/A,CIN,Shared Services,Planned,High,Infra Lead,0,Shared services RG
+vnet-hub-rewn-prod-cin,Virtual Network,Production,rg-network-rewn-prod-cin,CIN,Hub VNet,Planned,High,Network Admin,50,Hub network for spoke connectivity
+vnet-spoke-rewn-prod-cin,Virtual Network,Production,rg-network-rewn-prod-cin,CIN,Prod Spoke VNet,Planned,High,Network Admin,50,Production spoke VNet
+vnet-spoke-rewn-dev-cin,Virtual Network,Development,rg-network-rewn-dev-cin,CIN,Dev Spoke VNet,Planned,Medium,Network Admin,25,Development spoke VNet
+snet-appgw-prod-cin,Subnet,Production,rg-network-rewn-prod-cin,CIN,Application Gateway,Planned,High,Network Admin,0,10.10.0.0/24
+snet-aks-prod-cin,Subnet,Production,rg-network-rewn-prod-cin,CIN,AKS Nodes,Planned,High,K8s Admin,0,10.10.1.0/22
+snet-db-prod-cin,Subnet,Production,rg-network-rewn-prod-cin,CIN,Database PE,Planned,High,Network Admin,0,10.10.5.0/24
+snet-storage-prod-cin,Subnet,Production,rg-network-rewn-prod-cin,CIN,Storage PE,Planned,High,Network Admin,0,10.10.6.0/24
+snet-pe-prod-cin,Subnet,Production,rg-network-rewn-prod-cin,CIN,Private Endpoints,Planned,High,Network Admin,0,10.10.7.0/24
+snet-bastion-prod-cin,Subnet,Production,rg-network-rewn-prod-cin,CIN,Bastion,Planned,High,Network Admin,0,10.10.8.0/27
+afw-rewn-prod-cin,Azure Firewall,Production,rg-network-rewn-prod-cin,CIN,Firewall,Planned,High,Security Officer,500,Centralized firewall control
+afwp-rewn-prod-cin,Firewall Policy,Production,rg-network-rewn-prod-cin,CIN,Firewall Policy,Planned,High,Security Officer,0,Firewall rules and policies
+nat-rewn-prod-cin,NAT Gateway,Production,rg-network-rewn-prod-cin,CIN,NAT Gateway,Planned,High,Network Admin,45,Outbound connectivity
+pip-nat-rewn-prod-cin,Public IP,Production,rg-network-rewn-prod-cin,CIN,NAT Public IP,Planned,High,Network Admin,3,Public IP for NAT
+rt-prod-cin,Route Table,Production,rg-network-rewn-prod-cin,CIN,Routing,Planned,High,Network Admin,0,Network routing rules
+bastion-rewn-prod-cin,Azure Bastion,Production,rg-network-rewn-prod-cin,CIN,Bastion Host,Planned,High,Network Admin,20,Jump host for SSH/RDP access
+ddos-rewn-prod-cin,DDoS Plan,Production,rg-network-rewn-prod-cin,CIN,DDoS Protection,Planned,High,Security Officer,2000,DDoS attack protection
+nsg-appgw-prod-cin,NSG,Production,rg-network-rewn-prod-cin,CIN,App Gateway Security,Planned,High,Security Officer,0,Application Gateway NSG rules
+nsg-aks-prod-cin,NSG,Production,rg-network-rewn-prod-cin,CIN,AKS Security,Planned,High,K8s Admin,0,AKS cluster NSG rules
+nsg-db-prod-cin,NSG,Production,rg-network-rewn-prod-cin,CIN,Database Security,Planned,High,DBA,0,Database NSG rules
+nsg-storage-prod-cin,NSG,Production,rg-network-rewn-prod-cin,CIN,Storage Security,Planned,High,Storage Admin,0,Storage account NSG rules
+nsg-pe-prod-cin,NSG,Production,rg-network-rewn-prod-cin,CIN,Private Endpoint Security,Planned,High,Network Admin,0,Private endpoint NSG rules
+nsg-bastion-prod-cin,NSG,Production,rg-network-rewn-prod-cin,CIN,Bastion Security,Planned,High,Network Admin,0,Bastion NSG rules
+kv-rewn-prod-cin,Key Vault,Production,rg-security-rewn-prod-cin,CIN,Secrets Management,Planned,High,Security Officer,5,Centralized secret storage
+id-rewn-aks-prod-cin,Managed Identity,Production,rg-aks-rewn-prod-cin,CIN,AKS Identity,Planned,High,K8s Admin,0,AKS service principal
+aks-rewn-prod-cin,AKS Cluster,Production,rg-aks-rewn-prod-cin,CIN,Container Platform,Planned,High,K8s Admin,1000,Production Kubernetes cluster
+aks-rewn-dev-cin,AKS Cluster,Development,rg-aks-rewn-dev-cin,CIN,Container Platform,Planned,Medium,K8s Admin,300,Dev Kubernetes cluster
+acrrewnprodcin,Container Registry,Production,rg-storage-rewn-prod-cin,CIN,Container Images,Planned,High,DevOps,50,Private container registry
+systempool,Node Pool,Production,rg-aks-rewn-prod-cin,CIN,System Nodes,Planned,High,K8s Admin,200,System component nodes
+apppool,Node Pool,Production,rg-aks-rewn-prod-cin,CIN,App Workload,Planned,High,K8s Admin,400,Application workload nodes
+workloadpool,Node Pool,Production,rg-aks-rewn-prod-cin,CIN,Specific Workload,Planned,High,K8s Admin,400,Dedicated workload nodes
+afd-rewn-prod,Azure Front Door,Production,rg-network-rewn-prod-cin,CIN,Global Load Balancer,Planned,High,Network Admin,600,Global traffic management
+agw-rewn-prod-cin,Application Gateway,Production,rg-network-rewn-prod-cin,CIN,Regional LB,Planned,High,Network Admin,200,Regional load balancing
+pip-agw-rewn-prod,Public IP,Production,rg-network-rewn-prod-cin,CIN,App Gateway IP,Planned,High,Network Admin,3,Public IP for App Gateway
+waf-rewn-prod,WAF Policy,Production,rg-network-rewn-prod-cin,CIN,Web App Firewall,Planned,High,Security Officer,5,Front Door WAF
+agw-waf-rewn-prod,WAF Policy,Production,rg-network-rewn-prod-cin,CIN,Web App Firewall,Planned,High,Security Officer,5,App Gateway WAF
+strewnprod001,Storage Account,Production,rg-storage-rewn-prod-cin,CIN,General Storage,Planned,High,Storage Admin,100,Blob storage + containers
+stfuncrewnprod001,Storage Account,Production,rg-storage-rewn-prod-cin,CIN,Functions Storage,Planned,Medium,DevOps,30,Azure Functions storage
+stmigrationrewnprod,Storage Account,Production,rg-storage-rewn-prod-cin,CIN,Migration Storage,Planned,Medium,Migration Lead,50,Temporary migration storage
+fs-rewn-prod,Azure Files,Production,rg-storage-rewn-prod-cin,CIN,Shared Files,Planned,High,Storage Admin,40,Kubernetes persistent volumes
+images,Blob Container,Production,rg-storage-rewn-prod-cin,CIN,Container Images,Planned,High,DevOps,20,Deployment artifacts
+backups,Blob Container,Production,rg-storage-rewn-prod-cin,CIN,Backups,Planned,High,DBA,150,Database backups
+deployments,Blob Container,Production,rg-storage-rewn-prod-cin,CIN,Deployments,Planned,High,DevOps,50,Release packages
+userfiles,Blob Container,Production,rg-storage-rewn-prod-cin,CIN,User Data,Planned,Medium,App Owner,200,User-uploaded files
+logs,Blob Container,Production,rg-storage-rewn-prod-cin,CIN,Logs,Planned,High,Monitoring Admin,100,Application logs
+mysql-rewn-prod,MySQL Server,Production,rg-db-rewn-prod-cin,CIN,Relational DB,Planned,High,DBA,300,Azure Database for MySQL
+cosmos-rewn-prod,Cosmos DB,Production,rg-db-rewn-prod-cin,CIN,NoSQL DB,Planned,High,DBA,400,MongoDB-compatible database
+redis-rewn-prod,Azure Cache for Redis,Production,rg-db-rewn-prod-cin,CIN,In-Memory Cache,Planned,High,DBA,200,Session and data cache
+elastic-rewn-prod,Elasticsearch,Production,rg-db-rewn-prod-cin,CIN,Search/Analytics,Planned,High,DBA,250,Full-text search
+pep-mysql-rewn-prod,Private Endpoint,Production,rg-db-rewn-prod-cin,CIN,MySQL PE,Planned,High,Network Admin,0,MySQL private endpoint
+pep-blob-rewn-prod,Private Endpoint,Production,rg-storage-rewn-prod-cin,CIN,Blob PE,Planned,High,Network Admin,0,Storage blob private endpoint
+pep-file-rewn-prod,Private Endpoint,Production,rg-storage-rewn-prod-cin,CIN,Files PE,Planned,High,Network Admin,0,Azure Files private endpoint
+pep-kv-rewn-prod,Private Endpoint,Production,rg-security-rewn-prod-cin,CIN,Key Vault PE,Planned,High,Security Officer,0,Key Vault private endpoint
+pep-redis-rewn-prod,Private Endpoint,Production,rg-db-rewn-prod-cin,CIN,Redis PE,Planned,High,Network Admin,0,Redis private endpoint
+law-rewn-prod,Log Analytics,Production,rg-monitor-rewn-prod-cin,CIN,Logging,Planned,High,Monitoring Admin,100,Central log repository
+monitor-rewn-prod,Azure Monitor,Production,rg-monitor-rewn-prod-cin,CIN,Monitoring,Planned,High,Monitoring Admin,0,Metrics and alerts
+appi-rewn-prod,App Insights,Production,rg-monitor-rewn-prod-cin,CIN,APM,Planned,High,Monitoring Admin,50,Application performance
+ag-rewn-prod,Action Group,Production,rg-monitor-rewn-prod-cin,CIN,Alerting,Planned,High,Monitoring Admin,0,Alert notifications
+rsv-rewn-prod,Recovery Vault,Production,rg-security-rewn-prod-cin,CIN,Backups,Planned,High,DBA,200,Backup management
+bp-rewn-prod,Backup Policy,Production,rg-security-rewn-prod-cin,CIN,Backup Policy,Planned,High,DBA,0,Backup schedules
+asr-rewn-prod,Replication Vault,Production,rg-security-rewn-prod-cin,CIN,Disaster Recovery,Planned,High,DBA,300,Site recovery
+rewn.io,Public DNS Zone,Production,rg-shared-rewn-prod-cin,CIN,Public DNS,Planned,High,Network Admin,1,Primary domain
+privatelink.mysql.database.azure.com,Private DNS Zone,Production,rg-network-rewn-prod-cin,CIN,Private DNS,Planned,High,Network Admin,0,MySQL private DNS
+privatelink.blob.core.windows.net,Private DNS Zone,Production,rg-network-rewn-prod-cin,CIN,Private DNS,Planned,High,Network Admin,0,Blob private DNS
+privatelink.file.core.windows.net,Private DNS Zone,Production,rg-network-rewn-prod-cin,CIN,Private DNS,Planned,High,Network Admin,0,Files private DNS
+privatelink.vaultcore.azure.net,Private DNS Zone,Production,rg-network-rewn-prod-cin,CIN,Private DNS,Planned,High,Network Admin,0,Key Vault private DNS
+func-rewn-prod,Function App,Production,rg-shared-rewn-prod-cin,CIN,Serverless,Planned,Medium,DevOps,30,Serverless functions
+asp-func-rewn-prod,App Service Plan,Production,rg-shared-rewn-prod-cin,CIN,Functions Plan,Planned,Medium,DevOps,50,Premium plan for functions
+vm-bastion-prod,Virtual Machine,Production,rg-network-rewn-prod-cin,CIN,Bastion VM,Planned,High,Infra Admin,100,Jump host for access
+vm-es-prod-01,Virtual Machine,Production,rg-db-rewn-prod-cin,CIN,Elasticsearch,Planned,High,DBA,250,Elasticsearch node
+vm-mongo-prod-01,Virtual Machine,Production,rg-db-rewn-prod-cin,CIN,MongoDB,Planned,High,DBA,250,MongoDB node
+vm-nginx-prod-01,Virtual Machine,Production,rg-network-rewn-prod-cin,CIN,Nginx,Planned,Low,Network Admin,50,Optional nginx (may migrate to AKS)
+migrate-rewn-prod,Migrate Project,Production,rg-shared-rewn-prod-cin,CIN,Migration Tool,Planned,High,Migration Lead,0,Azure Migrate
+dms-rewn-prod,DMS,Production,rg-shared-rewn-prod-cin,CIN,Database Migration,Planned,High,Migration Lead,150,Database Migration Service
+REWN,DevOps Project,Production,rg-shared-rewn-prod-cin,CIN,CI/CD,Planned,High,DevOps Lead,0,Azure DevOps project
+sc-rewn-prod,Service Connection,Production,rg-shared-rewn-prod-cin,CIN,Auth,Planned,High,DevOps,0,DevOps service connection
+vg-rewn-prod,Variable Group,Production,rg-shared-rewn-prod-cin,CIN,Variables,Planned,High,DevOps,0,Pipeline variables
+prod,Environment,Production,rg-shared-rewn-prod-cin,CIN,Deployment Env,Planned,High,DevOps,0,Production environment gate

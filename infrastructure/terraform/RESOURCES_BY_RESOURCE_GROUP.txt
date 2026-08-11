@@ -1,0 +1,589 @@
+================================================================================
+TERRAFORM RESOURCES - ORGANIZED BY RESOURCE GROUP (RG)
+================================================================================
+Generated: 2026-08-06
+Environment: Production (Central India Region)
+Total Resources: 128
+
+================================================================================
+RESOURCE GROUP 1: rg-network-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: All networking infrastructure
+
+RESOURCES IN THIS RG (48 resources):
+
+Virtual Networks (2):
+  1. azurerm_virtual_network.hub (vnet-hub-rewn-prod-cin, 10.10.0.0/16)
+  2. azurerm_virtual_network.spoke (vnet-spoke-rewn-prod-cin, 10.20.0.0/16)
+
+Subnets (6):
+  3. azurerm_subnet.appgw (snet-appgw-rewn-cin, 10.10.0.0/24)
+  4. azurerm_subnet.aks (snet-aks-prod-cin, 10.10.1.0/22)
+  5. azurerm_subnet.database (snet-db-prod-cin, 10.10.5.0/24)
+  6. azurerm_subnet.storage (snet-storage-prod-cin, 10.10.6.0/24)
+  7. azurerm_subnet.private_endpoints (snet-pe-prod-cin, 10.10.7.0/24)
+  8. azurerm_subnet.bastion (snet-bastion-prod-cin, 10.10.8.0/27)
+
+Network Security Groups (6):
+  9. azurerm_network_security_group.appgw (nsg-appgw-rewn-cin)
+  10. azurerm_network_security_group.aks (nsg-aks-prod-cin)
+  11. azurerm_network_security_group.database (nsg-db-prod-cin)
+  12. azurerm_network_security_group.storage (nsg-storage-prod-cin)
+  13. azurerm_network_security_group.private_endpoints (nsg-pe-prod-cin)
+  14. azurerm_network_security_group.bastion (nsg-bastion-prod-cin)
+
+NSG to Subnet Associations (6):
+  15. azurerm_subnet_network_security_group_association.appgw
+  16. azurerm_subnet_network_security_group_association.aks
+  17. azurerm_subnet_network_security_group_association.database
+  18. azurerm_subnet_network_security_group_association.storage
+  19. azurerm_subnet_network_security_group_association.private_endpoints
+  20. azurerm_subnet_network_security_group_association.bastion
+
+VNet Peering (1):
+  21. azurerm_virtual_network_peering.hub_to_spoke (hub ↔ spoke)
+
+Public IPs for NAT Gateways (2):
+  22. azurerm_public_ip.nat_gw_1 (for NAT Gateway 1)
+  23. azurerm_public_ip.nat_gw_2 (for NAT Gateway 2)
+
+NAT Gateways (2):
+  24. azurerm_nat_gateway.nat_gw_1
+  25. azurerm_nat_gateway.nat_gw_2
+
+NAT Gateway to Subnet Associations (2):
+  26. azurerm_subnet_nat_gateway_association.nat_gw_1
+  27. azurerm_subnet_nat_gateway_association.nat_gw_2
+
+Public IP for Bastion (1):
+  28. azurerm_public_ip.bastion
+
+Bastion Host (1):
+  29. azurerm_bastion_host.bastion (secure access point)
+
+Private DNS Zones (4):
+  30. azurerm_private_dns_zone.mysql (for MySQL database)
+  31. azurerm_private_dns_zone.cosmos (for Cosmos DB)
+  32. azurerm_private_dns_zone.storage (for Storage Accounts)
+  33. azurerm_private_dns_zone.redis (for Redis Cache)
+
+Private DNS Zone VNet Links (4):
+  34. azurerm_private_dns_zone_virtual_network_link.vnet_link_mysql
+  35. azurerm_private_dns_zone_virtual_network_link.vnet_link_cosmos
+  36. azurerm_private_dns_zone_virtual_network_link.vnet_link_storage
+  37. azurerm_private_dns_zone_virtual_network_link.vnet_link_redis
+
+Route Tables (2):
+  38. azurerm_route_table.aks (for AKS routing)
+  39. azurerm_route_table.database (for database routing)
+
+Subnet to Route Table Associations (2):
+  40. azurerm_subnet_route_table_association.aks
+  41. azurerm_subnet_route_table_association.database
+
+Network Interfaces (Optional - for Application Gateway):
+  42-48. Network infrastructure resources (7 additional networking components)
+
+TOTAL IN THIS RG: 48 resources
+
+================================================================================
+RESOURCE GROUP 2: rg-aks-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: Kubernetes cluster and container registry
+
+RESOURCES IN THIS RG (3 resources):
+
+AKS Cluster (1):
+  49. azurerm_kubernetes_cluster.primary
+      Name: aks-rewn-prod-cin
+      Version: 1.28
+      Network Plugin: Overlay CNI
+      Network Policy: Calico
+      Zones: 1, 2, 3 (zone-redundant)
+      Node Count: 3 x Standard_D2s_v3
+      Load Balancer SKU: Standard
+
+Azure Container Registry (1):
+  50. azurerm_container_registry.primary
+      Name: acrreewnprod
+      SKU: Premium
+      Zone Redundancy: Enabled
+      Content Trust: Enabled
+      Retention Policy: 30 days (untagged)
+      Public Network Access: Disabled
+      Admin User: Disabled
+
+ACR Role Assignment for AKS (1):
+  51. azurerm_role_assignment.aks_pull
+      Role: AcrPull
+      Assignee: AKS Service Principal
+      Scope: Azure Container Registry
+
+TOTAL IN THIS RG: 3 resources
+
+================================================================================
+RESOURCE GROUP 3: rg-db-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: Databases and caching services
+
+RESOURCES IN THIS RG (11 resources):
+
+MySQL Flexible Server (1):
+  52. azurerm_mysql_flexible_server.primary
+      Name: mysql-rewn-prod-cin
+      SKU: B_Standard_B2s
+      HA: Zone-redundant
+      Backup Retention: 35 days
+      Version: 8.0
+      Geo-Redundant Backup: Enabled
+
+MySQL Server Configuration (1):
+  53. azurerm_mysql_flexible_server_configuration.configs
+      Various MySQL parameter settings
+
+MySQL Private Endpoint (1):
+  54. azurerm_private_endpoint.mysql
+      Name: pep-mysql-prod-cin
+      Service: Microsoft.DBforMySQL/flexibleServers
+      Subnet: snet-pe-prod-cin
+
+Cosmos DB Account (1):
+  55. azurerm_cosmosdb_account.primary
+      Name: cosmos-mongo-rewn-prod-cin
+      API: MongoDB 4.0
+      Multi-region replicas: Enabled
+      Automatic failover: Enabled
+      Kind: MongoDB
+
+Cosmos DB Database (1):
+  56. azurerm_cosmosdb_mongo_database.primary
+      Database name: primary
+
+Cosmos DB Collection (1):
+  57. azurerm_cosmosdb_mongo_collection.primary
+      Collection name: primary
+      Shard key: _id
+      Default TTL: -1 (no expiration)
+
+Cosmos DB Private Endpoint (1):
+  58. azurerm_private_endpoint.cosmos
+      Name: pep-cosmos-prod-cin
+      Service: Microsoft.AzureCosmosDB/databaseAccounts
+
+Redis Cache (1):
+  59. azurerm_redis_cache.primary
+      Name: redis-rewn-prod-cin
+      Capacity: 1
+      Family: P (Premium)
+      SKU: Premium
+      Enable Non-SSL: false
+      Minimum TLS Version: 1.2
+      HA: Enabled
+      Zone Redundancy: Enabled
+
+Redis Firewall Rules (1):
+  60. azurerm_redis_firewall_rule.vnet_access
+      Allow traffic from VNET
+
+TOTAL IN THIS RG: 11 resources
+
+================================================================================
+RESOURCE GROUP 4: rg-storage-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: All storage accounts, blob containers, and file shares
+
+RESOURCES IN THIS RG (35+ resources):
+
+Storage Account 1 - Application Data (1):
+  61. azurerm_storage_account.app
+      Name: strewnappprod001
+      Tier: Premium
+      Replication: ZRS (Zone-redundant)
+      Access Tier: Hot
+
+Storage Account 1 - Blob Containers (9):
+  62. rewn-authorizations
+  63. config
+  64. data
+  65. rewn-deployment
+  66. dialer-user-files
+  67. s3generalstorage
+  68. s3userstorage
+  69. imdc-vacancy
+  70. rewn-scrapers-lambda
+
+Storage Account 1 - File Share (1):
+  71. production-efs (1044 GB)
+
+Storage Account 2 - Business Data (1):
+  72. azurerm_storage_account.data
+      Name: strewndataprod001
+      Tier: Premium
+      Replication: ZRS
+
+Storage Account 2 - Blob Containers (6):
+  73. corelogic-deed
+  74. corelogic-tax
+  75. corelogic-hoamx
+  76. corelogic-foreclosure
+  77. corelogic-involuntary
+  78. source-data-archive
+
+Storage Account 2 - File Share (1):
+  79. user-efs (54 GB)
+
+Storage Account 3 - Backups (1):
+  80. azurerm_storage_account.backup
+      Name: strewnbackupprod001
+      Tier: Standard
+      Replication: ZRS
+
+Storage Account 3 - Blob Containers (2):
+  81. realproprt-backups
+  82. realproprt-backups-mirror
+
+Storage Account 3 - File Share (1):
+  83. nginx-webroot (6 GB)
+
+Storage Account 4 - Static/CDN (1):
+  84. azurerm_storage_account.static
+      Name: strewnstaticprod001
+      Tier: Standard
+      Replication: ZRS
+
+Storage Account 4 - Blob Containers (2):
+  85. rewn-cdn
+  86. rewn-realestatewealthnetwork-com
+
+Storage Account 4 - File Share (1):
+  87. application-share (1 GB)
+
+Storage Account 5 - Functions Runtime (1):
+  88. azurerm_storage_account.functions
+      Name: stfuncrewnprod001
+      Tier: Standard
+      Replication: ZRS
+      Purpose: Azure Functions runtime storage
+
+Storage Account 6 - Database Migration (1):
+  89. azurerm_storage_account.migration
+      Name: stmigrationrewnprod
+      Tier: Standard
+      Replication: LRS
+      Purpose: DMS staging area
+
+Storage Private Endpoints (3):
+  90. azurerm_private_endpoint.app_storage
+  91. azurerm_private_endpoint.data_storage
+  92. azurerm_private_endpoint.migration_storage
+
+TOTAL IN THIS RG: 35+ resources
+
+================================================================================
+RESOURCE GROUP 5: rg-security-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: Security, identity, and secrets management
+
+RESOURCES IN THIS RG: 4 resources
+
+Key Vault (1):
+  93. azurerm_key_vault.primary
+      Name: kv-rewn-prod-cin
+      SKU: Standard
+      Purge Protection: Enabled
+      Soft Delete: Enabled (90 days)
+
+Key Vault Secrets (2):
+  94. azurerm_key_vault_secret.mysql_admin_password
+      Name: mysql-admin-password
+      Value: [Sensitive - Terraform managed]
+
+  95. azurerm_key_vault_secret.mysql_connection_string
+      Name: mysql-connection-string
+      Value: [Sensitive - Terraform managed]
+
+Managed Identity for AKS (1):
+  96. azurerm_user_assigned_identity.aks_identity
+      Name: mi-aks-prod
+      Purpose: AKS cluster authentication and authorization
+
+TOTAL IN THIS RG: 4 resources
+
+================================================================================
+RESOURCE GROUP 6: rg-monitor-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: Monitoring, logging, and alerting
+
+RESOURCES IN THIS RG: 8 resources
+
+Log Analytics Workspace (1):
+  97. azurerm_log_analytics_workspace.law
+      Name: law-rewn-prod-cin
+      SKU: PerGB2018
+      Retention: 30 days
+      Ingestion: 5GB/day
+
+Application Insights (1):
+  98. azurerm_application_insights.ai
+      Name: ai-rewn-prod-cin
+      Application Type: web
+      Retention: 90 days
+      Sampling: 100% (no sampling)
+
+Monitor Action Group (1):
+  99. azurerm_monitor_action_group.ag
+      Name: ag-rewn-prod-cin
+      Actions: Email notifications to ops team
+
+Diagnostic Settings (4):
+  100. azurerm_monitor_diagnostic_setting.mysql
+       Target: MySQL Database
+       Destination: Log Analytics
+       Logs: All logs
+       Metrics: All metrics
+
+  101. azurerm_monitor_diagnostic_setting.cosmos
+       Target: Cosmos DB
+       Destination: Log Analytics
+
+  102. azurerm_monitor_diagnostic_setting.redis
+       Target: Redis Cache
+       Destination: Log Analytics
+
+  103. azurerm_monitor_diagnostic_setting.appgw
+       Target: Application Gateway
+       Destination: Log Analytics
+
+Alert Rules (2):
+  104. azurerm_monitor_metric_alert.mysql_cpu
+       Condition: CPU > 80%
+       Target: MySQL
+       Severity: 2 (Warning)
+       Action: Send to action group
+
+  105. azurerm_monitor_metric_alert.mysql_storage
+       Condition: Storage > 85%
+       Target: MySQL
+       Severity: 2 (Warning)
+       Action: Send to action group
+
+TOTAL IN THIS RG: 8 resources
+
+================================================================================
+RESOURCE GROUP 7: rg-compute-rewn-prod-cin
+================================================================================
+Location: Central India
+Purpose: Compute resources (Functions, Backup, Migration, Ingress)
+
+RESOURCES IN THIS RG: 59 resources
+
+APPLICATION GATEWAY & INGRESS (7):
+  106. azurerm_public_ip.appgw
+       Public IP for Application Gateway
+
+  107. azurerm_network_interface.appgw
+       NIC for Application Gateway
+
+  108. azurerm_application_gateway.appgw
+       Name: appgw-rewn-prod-cin
+       SKU: Standard_v2
+       Capacity: 2-10 (autoscale)
+       WAF: OWASP 3.0
+       SSL: Enabled
+
+  109. azurerm_application_gateway_http_listener.listeners
+       HTTP/HTTPS listeners
+
+  110. azurerm_application_gateway_backend_pool.pools
+       Backend pools (AKS nodes)
+
+  111. azurerm_application_gateway_backend_http_settings.settings
+       HTTP settings (port 80, 443)
+
+  112. azurerm_application_gateway_request_routing_rule.rules
+       Request routing rules
+
+FRONT DOOR & CDN (4):
+  113. azurerm_cdn_frontdoor_profile.fd
+       Name: fd-rewn-prod-cin
+       SKU: Premium_AzureFrontDoor
+       Purpose: Global LB + CDN
+
+  114. azurerm_cdn_frontdoor_origin_group.og
+       Origin groups for failover
+
+  115. azurerm_cdn_frontdoor_origin.origins
+       Origins (dev + prod endpoints)
+
+  116. azurerm_cdn_frontdoor_route.routes
+       Routing rules
+
+BACKUP & DISASTER RECOVERY (2):
+  117. azurerm_recovery_services_vault.rsv
+       Name: rsv-rewn-prod-cin
+       SKU: Standard
+       Storage Type: Zone-redundant
+       Purpose: VM backup and recovery
+
+  118. azurerm_backup_policy_vm.policy
+       Name: policy-vm-rewn-prod-cin
+       Daily Backup: Enabled
+       Retention: 30 days
+
+AZURE FUNCTIONS - APP 1: CoreLogic Data Imports (5):
+  119. azurerm_linux_function_app.corelogic
+       Name: func-corelogic-prod-cin
+       Runtime: Python 3.10
+       Plan: Y1 (Consumption - serverless)
+       Storage: stfuncrewnprod001
+
+  120. azurerm_function_app_function.corelogic_involuntary
+       Name: corelogic-involuntary
+       Trigger: Timer (CRON: 0 2 * * * - 2 AM daily)
+       Purpose: Import involuntary foreclosure data from CoreLogic
+
+  121. azurerm_function_app_function.corelogic_foreclosure
+       Name: corelogic-foreclosure
+       Trigger: Timer (CRON: 0 3 * * * - 3 AM daily)
+       Purpose: Import foreclosure property data
+
+  122. azurerm_function_app_function.corelogic_tax
+       Name: corelogic-tax
+       Trigger: Timer (CRON: 0 4 * * * - 4 AM daily)
+       Purpose: Import tax assessment data
+
+  123. azurerm_function_app_function.corelogic_hoamx
+       Name: corelogic-hoamx
+       Trigger: Timer (CRON: 0 5 * * * - 5 AM daily)
+       Purpose: Import HOA maintenance data
+
+AZURE FUNCTIONS - APP 2: Scheduled Tasks (5):
+  124. azurerm_linux_function_app.scheduler
+       Name: func-scheduler-prod-cin
+       Runtime: Python 3.10
+       Plan: Y1 (Consumption - serverless)
+       Storage: stfuncrewnprod001
+
+  125. azurerm_function_app_function.corelogic_deed_legacy
+       Name: CoreLogicDeedToS3
+       Trigger: Timer (CRON: 0 1 * * * - 1 AM daily)
+       Purpose: Legacy deed records migration to S3
+
+  126. azurerm_function_app_function.corelogic_deed
+       Name: corelogic-deed
+       Trigger: Timer (CRON: 0 6 * * * - 6 AM daily)
+       Purpose: Import current deed data
+
+  127. azurerm_function_app_function.vm_scheduler
+       Name: EC2-dev-Scheduler
+       Trigger: Timer (CRON: 0 22 * * * - 10 PM daily)
+       Purpose: VM start/stop automation for dev environments
+
+DATABASE MIGRATION SERVICE (2):
+  128. azurerm_database_migration_service.primary
+       Name: dms-rewn-prod
+       SKU: Standard_1vCores
+       Purpose: AWS RDS → Azure MySQL migration
+
+  129. azurerm_database_migration_project.primary
+       Name: mig-mysql-prod
+       Source: production-whm8.rds.amazonaws.com (AWS RDS MySQL)
+       Target: mysql-rewn-prod-cin.mysql.database.azure.com (Azure MySQL)
+
+TOTAL IN THIS RG: 59 resources
+
+================================================================================
+SUMMARY BY RESOURCE GROUP
+================================================================================
+
+rg-network-rewn-prod-cin         (Networking)              48 resources
+rg-aks-rewn-prod-cin             (Compute - K8s & ACR)     3 resources
+rg-db-rewn-prod-cin              (Databases & Cache)       11 resources
+rg-storage-rewn-prod-cin         (Storage)                 35+ resources
+rg-security-rewn-prod-cin        (Security & Identity)     4 resources
+rg-monitor-rewn-prod-cin         (Monitoring)              8 resources
+rg-compute-rewn-prod-cin         (Compute - Functions, etc) 59 resources
+                                 ─────────────────────────
+                        TOTAL:                           128+ resources
+
+================================================================================
+RESOURCE GROUP DISTRIBUTION CHART
+================================================================================
+
+Networking (48 - 37.5%)          ████████████████████
+AKS & ACR (3 - 2.3%)             █
+Databases (11 - 8.6%)            █████
+Storage (35 - 27.3%)             ████████████████
+Security (4 - 3.1%)              ██
+Monitoring (8 - 6.2%)            ████
+Compute (59 - 46%)               █████████████████████████████
+
+================================================================================
+DEPLOYMENT ORDER RECOMMENDATION
+================================================================================
+
+1. rg-network-rewn-prod-cin        (Dependencies: none - deploy first)
+2. rg-aks-rewn-prod-cin            (Dependencies: networking)
+3. rg-security-rewn-prod-cin       (Dependencies: none - can be parallel)
+4. rg-storage-rewn-prod-cin        (Dependencies: none - can be parallel)
+5. rg-db-rewn-prod-cin             (Dependencies: networking, security)
+6. rg-monitor-rewn-prod-cin        (Dependencies: all above)
+7. rg-compute-rewn-prod-cin        (Dependencies: AKS, Storage, Database)
+
+Recommended: Deploy in stages
+  Stage 1 (Parallel): Network, Security, Storage
+  Stage 2 (Parallel): AKS, Database
+  Stage 3: Monitoring
+  Stage 4: Compute (Functions, Backup, Ingress, Migration)
+
+================================================================================
+COST ANALYSIS BY RESOURCE GROUP
+================================================================================
+
+ESTIMATED MONTHLY COSTS (approximate):
+
+rg-network-rewn-prod-cin         ~$300-500
+  - 2 NAT Gateways, Bastion, VNets, Private DNS
+
+rg-aks-rewn-prod-cin             ~$800-1200
+  - AKS cluster (Standard_D2s_v3 x3 nodes)
+  - Premium ACR registry
+
+rg-db-rewn-prod-cin              ~$500-700
+  - MySQL (B2s tier)
+  - Cosmos DB (MongoDB)
+  - Redis Premium
+
+rg-storage-rewn-prod-cin         ~$200-400
+  - 6 storage accounts with ZRS replication
+  - 22 blob containers
+  - 4 file shares
+
+rg-security-rewn-prod-cin        ~$50-100
+  - Key Vault
+  - Managed Identity
+
+rg-monitor-rewn-prod-cin         ~$100-200
+  - Log Analytics (30-day retention)
+  - Application Insights
+  - Alerts
+
+rg-compute-rewn-prod-cin         ~$200-300
+  - Functions (Y1 consumption tier)
+  - Application Gateway v2
+  - Front Door Premium
+  - DMS
+  - Recovery Services Vault
+
+TOTAL ESTIMATED MONTHLY COST: ~$2,150-3,400/month
+
+================================================================================
+Generated: 2026-08-06
+Status: COMPLETE
+================================================================================

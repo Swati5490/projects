@@ -1,0 +1,13 @@
+{{- if .Values.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "rewn-fastapi.fullname" . }}
+  labels:
+    {{- include "rewn-fastapi.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "rewn-fastapi.selectorLabels" . | nindent 6 }}
+{{- end }}

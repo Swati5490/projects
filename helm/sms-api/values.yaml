@@ -1,0 +1,136 @@
+replicaCount: 3
+
+image:
+  registry: 770526846351.dkr.ecr.us-east-1.amazonaws.com
+  repository: sms-api
+  tag: "production"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: ecr-secret
+
+nameOverride: ""
+fullnameOverride: "sms-api"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "sms-api-sa"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: "azure-application-gateway"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "azure/application-gateway"
+  hosts:
+    - host: "sms-api.rewn.com"
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: sms-api-tls
+      hosts:
+        - "sms-api.rewn.com"
+
+resources:
+  limits:
+    cpu: 256m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - sms-api
+          topologyKey: kubernetes.io/hostname
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+# Environment variables (non-sensitive)
+env:
+  - name: REDIS_HOST
+    value: "redis.rewn-state"
+  - name: REDIS_PORT
+    value: "43768"
+  - name: TWILIO_APP_PHONE
+    value: "+16072467050"
+  - name: NODE_ENV
+    value: "production"
+  - name: AUTH_API_URL
+    value: "http://auth.rewn.io"
+
+# Secrets stored in Kubernetes Secret (sensitive data)
+# These should be created separately using: kubectl create secret generic sms-api-secrets --from-literal=...
+secrets:
+  redisPassword: "redis-password"
+  twilioAppKey: "twilio-app-key"
+  twilioAppToken: "twilio-app-token"
+
+logging:
+  driver: awslogs
+  awslogs:
+    group: "/ecs/sms-api--production"
+    region: "us-east-1"
+    streamPrefix: "ecs"

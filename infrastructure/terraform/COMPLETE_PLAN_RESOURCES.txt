@@ -1,0 +1,618 @@
+================================================================================
+COMPLETE TERRAFORM PLAN COMMAND - ALL 128 PRODUCTION RESOURCES
+================================================================================
+Generated: 2026-08-06
+Environment: Production (Central India Region)
+Configuration: Overlay CNI + Calico + Premium ACR
+
+================================================================================
+COMPLETE PLAN COMMAND
+================================================================================
+
+terraform plan \
+  -var-file="environments/prod/_globals.tfvars" \
+  -var-file="environments/prod/resource_groups.tfvars" \
+  -var-file="environments/prod/networking.tfvars" \
+  -var-file="environments/prod/compute.tfvars" \
+  -var-file="environments/prod/storage.tfvars" \
+  -var-file="environments/prod/databases.tfvars" \
+  -var-file="environments/prod/security.tfvars" \
+  -var-file="environments/prod/monitoring.tfvars" \
+  -var-file="environments/prod/backup.tfvars" \
+  -var-file="environments/prod/functions.tfvars" \
+  -var-file="environments/prod/application_gateway.tfvars" \
+  -var-file="environments/prod/front_door.tfvars" \
+  -var-file="environments/prod/migration.tfvars"
+
+EXPECTED OUTPUT:
+  Plan: 128 to add, 0 to change, 0 to destroy
+
+================================================================================
+COMPLETE RESOURCE LIST - 128 RESOURCES
+================================================================================
+
+CATEGORY 1: RESOURCE GROUPS (7 resources)
+================================================================
+1. module.resource_groups["network"].azurerm_resource_group.rg
+2. module.resource_groups["aks"].azurerm_resource_group.rg
+3. module.resource_groups["database"].azurerm_resource_group.rg
+4. module.resource_groups["storage"].azurerm_resource_group.rg
+5. module.resource_groups["security"].azurerm_resource_group.rg
+6. module.resource_groups["monitoring"].azurerm_resource_group.rg
+7. module.resource_groups["compute"].azurerm_resource_group.rg
+
+CATEGORY 2: NETWORKING (45+ resources)
+================================================================
+
+Virtual Networks (2):
+8. module.networking["hub"].azurerm_virtual_network.vnet
+9. module.networking["spoke"].azurerm_virtual_network.vnet
+
+Subnets (6+):
+10. module.subnets["appgw"].azurerm_subnet.subnet
+11. module.subnets["aks"].azurerm_subnet.subnet
+12. module.subnets["database"].azurerm_subnet.subnet
+13. module.subnets["storage"].azurerm_subnet.subnet
+14. module.subnets["private_endpoints"].azurerm_subnet.subnet
+15. module.subnets["bastion"].azurerm_subnet.subnet
+
+Network Security Groups (6+):
+16. module.network_security_groups["appgw"].azurerm_network_security_group.nsg
+17. module.network_security_groups["aks"].azurerm_network_security_group.nsg
+18. module.network_security_groups["database"].azurerm_network_security_group.nsg
+19. module.network_security_groups["storage"].azurerm_network_security_group.nsg
+20. module.network_security_groups["private_endpoints"].azurerm_network_security_group.nsg
+21. module.network_security_groups["bastion"].azurerm_network_security_group.nsg
+
+NSG Rule Associations (6+):
+22. module.network_security_groups["appgw"].azurerm_subnet_network_security_group_association.assoc
+23. module.network_security_groups["aks"].azurerm_subnet_network_security_group_association.assoc
+24. module.network_security_groups["database"].azurerm_subnet_network_security_group_association.assoc
+25. module.network_security_groups["storage"].azurerm_subnet_network_security_group_association.assoc
+26. module.network_security_groups["private_endpoints"].azurerm_subnet_network_security_group_association.assoc
+27. module.network_security_groups["bastion"].azurerm_subnet_network_security_group_association.assoc
+
+VNet Peering (1):
+28. module.networking.azurerm_virtual_network_peering.hub_to_spoke
+
+Advanced Networking (15+):
+29. module.advanced_networking["nat_gw_1"].azurerm_public_ip.pip
+30. module.advanced_networking["nat_gw_1"].azurerm_nat_gateway.nat_gw
+31. module.advanced_networking["nat_gw_1"].azurerm_subnet_nat_gateway_association.assoc
+
+32. module.advanced_networking["nat_gw_2"].azurerm_public_ip.pip
+33. module.advanced_networking["nat_gw_2"].azurerm_nat_gateway.nat_gw
+34. module.advanced_networking["nat_gw_2"].azurerm_subnet_nat_gateway_association.assoc
+
+35. module.advanced_networking["bastion"].azurerm_public_ip.pip
+36. module.advanced_networking["bastion"].azurerm_bastion_host.bastion
+
+37. module.advanced_networking.azurerm_private_dns_zone.dns_zone[0] (mysql)
+38. module.advanced_networking.azurerm_private_dns_zone.dns_zone[1] (cosmos)
+39. module.advanced_networking.azurerm_private_dns_zone.dns_zone[2] (storage)
+40. module.advanced_networking.azurerm_private_dns_zone.dns_zone[3] (redis)
+41. module.advanced_networking.azurerm_private_dns_zone_virtual_network_link.vnet_link[0]
+42. module.advanced_networking.azurerm_private_dns_zone_virtual_network_link.vnet_link[1]
+43. module.advanced_networking.azurerm_private_dns_zone_virtual_network_link.vnet_link[2]
+44. module.advanced_networking.azurerm_private_dns_zone_virtual_network_link.vnet_link[3]
+
+Route Tables (2+):
+45. module.advanced_networking.azurerm_route_table.rt[0] (AKS)
+46. module.advanced_networking.azurerm_route_table.rt[1] (Database)
+47. module.advanced_networking.azurerm_subnet_route_table_association.assoc[0]
+48. module.advanced_networking.azurerm_subnet_route_table_association.assoc[1]
+
+CATEGORY 3: COMPUTE (2 resources)
+================================================================
+
+AKS Cluster (1):
+49. module.aks_clusters["primary"].azurerm_kubernetes_cluster.aks
+   - Name: aks-rewn-prod-cin
+   - Version: 1.28
+   - Network Plugin: Overlay CNI
+   - Network Policy: Calico
+   - Zones: 1, 2, 3 (zone-redundant)
+   - Nodes: 3 x Standard_D2s_v3
+
+Azure Container Registry (1):
+50. module.container_registries["primary"].azurerm_container_registry.acr
+   - Name: acrreewnprod
+   - SKU: Premium
+   - Zone Redundancy: Enabled
+   - Content Trust: Enabled
+   - Retention Policy: 30 days
+
+51. module.container_registries["primary"].azurerm_role_assignment.aks_pull
+   - Role: AcrPull
+   - Scope: ACR
+   - Assignee: AKS Service Principal
+
+CATEGORY 4: DATABASE & CACHING (3 resources)
+================================================================
+
+MySQL Flexible Server (1):
+52. module.mysql_servers["primary"].azurerm_mysql_flexible_server.mysql
+   - Name: mysql-rewn-prod-cin
+   - SKU: B_Standard_B2s
+   - HA: Zone-redundant
+   - Backup: 35 days
+   - Version: 8.0
+
+MySQL Private Endpoint (1):
+53. module.mysql_servers["primary"].azurerm_private_endpoint.pep
+   - Name: pep-mysql-prod-cin
+   - Scope: MySQL database server
+   - Subnet: Private Endpoints (10.10.7.0/24)
+
+MySQL Configuration (1):
+54. module.mysql_servers["primary"].azurerm_mysql_flexible_server_configuration.configs
+   - Various MySQL parameter configurations
+
+Cosmos DB Account (1):
+55. module.cosmosdb_accounts["primary"].azurerm_cosmosdb_account.cosmos
+   - Name: cosmos-mongo-rewn-prod-cin
+   - API: MongoDB
+   - Replication: Multi-region
+   - Failover: Automatic
+
+Cosmos DB Database (1):
+56. module.cosmosdb_accounts["primary"].azurerm_cosmosdb_mongo_database.db
+   - Database: primary
+
+Cosmos DB Collection (1):
+57. module.cosmosdb_accounts["primary"].azurerm_cosmosdb_mongo_collection.collection
+   - Collection: primary
+
+Cosmos DB Private Endpoint (1):
+58. module.cosmosdb_accounts["primary"].azurerm_private_endpoint.pep
+   - Name: pep-cosmos-prod-cin
+
+Redis Cache (1):
+59. module.redis_caches["primary"].azurerm_redis_cache.redis
+   - Name: redis-rewn-prod-cin
+   - Tier: Premium
+   - Family: P
+   - HA: Enabled
+   - Capacity: 1
+
+Redis Firewall Rules (1):
+60. module.redis_caches["primary"].azurerm_redis_firewall_rule.fw_rule
+   - Allow VNET access
+
+CATEGORY 5: STORAGE (35+ resources)
+================================================================
+
+Storage Account 1 - Application Data:
+61. module.storage["app"].azurerm_storage_account.sa
+   - Name: strewnappprod001
+   - Tier: Premium
+   - Replication: ZRS (Zone-redundant)
+
+Storage Account 1 - Blob Containers (9):
+62. module.storage["app"].azurerm_storage_container.containers[0] (rewn-authorizations)
+63. module.storage["app"].azurerm_storage_container.containers[1] (config)
+64. module.storage["app"].azurerm_storage_container.containers[2] (data)
+65. module.storage["app"].azurerm_storage_container.containers[3] (rewn-deployment)
+66. module.storage["app"].azurerm_storage_container.containers[4] (dialer-user-files)
+67. module.storage["app"].azurerm_storage_container.containers[5] (s3generalstorage)
+68. module.storage["app"].azurerm_storage_container.containers[6] (s3userstorage)
+69. module.storage["app"].azurerm_storage_container.containers[7] (imdc-vacancy)
+70. module.storage["app"].azurerm_storage_container.containers[8] (rewn-scrapers-lambda)
+
+Storage Account 2 - Business Data:
+71. module.storage["data"].azurerm_storage_account.sa
+   - Name: strewndataprod001
+   - Tier: Premium
+   - Replication: ZRS
+
+Storage Account 2 - Blob Containers (6):
+72. module.storage["data"].azurerm_storage_container.containers[0] (corelogic-deed)
+73. module.storage["data"].azurerm_storage_container.containers[1] (corelogic-tax)
+74. module.storage["data"].azurerm_storage_container.containers[2] (corelogic-hoamx)
+75. module.storage["data"].azurerm_storage_container.containers[3] (corelogic-foreclosure)
+76. module.storage["data"].azurerm_storage_container.containers[4] (corelogic-involuntary)
+77. module.storage["data"].azurerm_storage_container.containers[5] (source-data-archive)
+
+Storage Account 3 - Backups:
+78. module.storage["backup"].azurerm_storage_account.sa
+   - Name: strewnbackupprod001
+   - Tier: Standard
+   - Replication: ZRS
+
+Storage Account 3 - Blob Containers (2):
+79. module.storage["backup"].azurerm_storage_container.containers[0] (realproprt-backups)
+80. module.storage["backup"].azurerm_storage_container.containers[1] (realproprt-backups-mirror)
+
+Storage Account 4 - Static/CDN:
+81. module.storage["static"].azurerm_storage_account.sa
+   - Name: strewnstaticprod001
+   - Tier: Standard
+   - Replication: ZRS
+
+Storage Account 4 - Blob Containers (2):
+82. module.storage["static"].azurerm_storage_container.containers[0] (rewn-cdn)
+83. module.storage["static"].azurerm_storage_container.containers[1] (rewn-realestatewealthnetwork-com)
+
+Storage Account 5 - Functions:
+84. module.storage["functions"].azurerm_storage_account.sa
+   - Name: stfuncrewnprod001
+   - Tier: Standard
+   - Replication: ZRS
+
+Storage Account 6 - Migration:
+85. module.storage["migration"].azurerm_storage_account.sa
+   - Name: stmigrationrewnprod
+   - Tier: Standard
+   - Replication: LRS
+
+Storage Private Endpoints (3):
+86. module.storage["app"].azurerm_private_endpoint.pep
+87. module.storage["data"].azurerm_private_endpoint.pep
+88. module.storage["migration"].azurerm_private_endpoint.pep
+
+Azure File Shares (4):
+89. module.file_shares["prod-efs"].azurerm_storage_share.share
+   - Name: production-efs
+   - Size: 1044 GB
+   - Storage: strewnappprod001
+
+90. module.file_shares["user-efs"].azurerm_storage_share.share
+   - Name: user-efs
+   - Size: 54 GB
+   - Storage: strewnappprod001
+
+91. module.file_shares["nginx-webroot"].azurerm_storage_share.share
+   - Name: nginx-webroot
+   - Size: 6 GB
+   - Storage: strewnbackupprod001
+
+92. module.file_shares["app-share"].azurerm_storage_share.share
+   - Name: application-share
+   - Size: 1 GB
+   - Storage: strewnstaticprod001
+
+CATEGORY 6: SECURITY & IDENTITY (5+ resources)
+================================================================
+
+Key Vault (1):
+93. module.key_vaults["primary"].azurerm_key_vault.kv
+   - Name: kv-rewn-prod-cin
+   - SKU: Standard
+   - Purge Protection: Enabled
+
+Key Vault Secrets (2):
+94. module.key_vaults["primary"].azurerm_key_vault_secret.secrets[0]
+   - Name: mysql-admin-password
+   - Value: [Sensitive]
+
+95. module.key_vaults["primary"].azurerm_key_vault_secret.secrets[1]
+   - Name: mysql-connection-string
+   - Value: [Sensitive]
+
+Managed Identity (1):
+96. module.security.azurerm_user_assigned_identity.aks_identity
+   - Name: mi-aks-prod
+   - Scope: AKS authentication
+
+CATEGORY 7: INGRESS & LOAD BALANCING (2 resources)
+================================================================
+
+Application Gateway v2 (1):
+97. module.application_gateway.azurerm_application_gateway.appgw
+   - Name: appgw-rewn-prod-cin
+   - SKU: Standard_v2
+   - Capacity: 2-10 (autoscale)
+   - WAF: OWASP 3.0
+   - SSL: Enabled
+
+98. module.application_gateway.azurerm_public_ip.pip
+   - Public IP for Application Gateway
+
+99. module.application_gateway.azurerm_network_interface.nic
+   - NIC for Application Gateway
+
+100. module.application_gateway.azurerm_application_gateway_http_listener.listeners
+    - HTTP/HTTPS listeners
+
+101. module.application_gateway.azurerm_application_gateway_backend_pool.pools
+    - Backend pools
+
+102. module.application_gateway.azurerm_application_gateway_backend_http_settings.settings
+    - HTTP settings
+
+103. module.application_gateway.azurerm_application_gateway_request_routing_rule.rules
+    - Routing rules
+
+Front Door (1):
+104. module.front_door.azurerm_cdn_frontdoor_profile.fd
+    - Name: fd-rewn-prod-cin
+    - SKU: Premium_AzureFrontDoor
+    - CDN + Global Load Balancing
+
+105. module.front_door.azurerm_cdn_frontdoor_origin_group.og
+    - Origin groups
+
+106. module.front_door.azurerm_cdn_frontdoor_origin.origins
+    - Origins (dev + prod)
+
+107. module.front_door.azurerm_cdn_frontdoor_route.routes
+    - Routing rules
+
+CATEGORY 8: MONITORING & LOGGING (6 resources)
+================================================================
+
+Log Analytics Workspace (1):
+108. module.monitoring.azurerm_log_analytics_workspace.law
+    - Name: law-rewn-prod-cin
+    - SKU: PerGB2018
+    - Retention: 30 days
+
+Application Insights (1):
+109. module.monitoring.azurerm_application_insights.ai
+    - Name: ai-rewn-prod-cin
+    - Application Type: web
+    - Retention: 90 days
+
+Monitor Action Group (1):
+110. module.monitoring.azurerm_monitor_action_group.ag
+    - Name: ag-rewn-prod-cin
+    - Action: Email notification
+
+Diagnostic Settings (4+):
+111. module.monitoring.azurerm_monitor_diagnostic_setting.diag["mysql"]
+    - Target: MySQL Database
+    - Destination: Log Analytics
+
+112. module.monitoring.azurerm_monitor_diagnostic_setting.diag["cosmos"]
+    - Target: Cosmos DB
+    - Destination: Log Analytics
+
+113. module.monitoring.azurerm_monitor_diagnostic_setting.diag["redis"]
+    - Target: Redis Cache
+    - Destination: Log Analytics
+
+114. module.monitoring.azurerm_monitor_diagnostic_setting.diag["appgw"]
+    - Target: Application Gateway
+    - Destination: Log Analytics
+
+Alert Rules (2+):
+115. module.monitoring.azurerm_monitor_metric_alert.alerts["mysql_cpu"]
+    - Metric: CPU > 80%
+    - Target: MySQL
+    - Action: Email
+
+116. module.monitoring.azurerm_monitor_metric_alert.alerts["mysql_storage"]
+    - Metric: Storage > 85%
+    - Target: MySQL
+    - Action: Email
+
+CATEGORY 9: BACKUP & DISASTER RECOVERY (2 resources)
+================================================================
+
+Recovery Services Vault (1):
+117. module.backup.azurerm_recovery_services_vault.rsv
+    - Name: rsv-rewn-prod-cin
+    - SKU: Standard
+    - Storage Redundancy: Zone-redundant
+
+Backup Policy (1):
+118. module.backup.azurerm_backup_policy_vm.policy
+    - Name: policy-vm-rewn-prod-cin
+    - Daily Backup: Enabled
+    - Retention: 30 days
+
+CATEGORY 10: SERVERLESS COMPUTING (9 resources)
+================================================================
+
+Function App 1 - CoreLogic (1):
+119. module.functions["corelogic"].azurerm_linux_function_app.app
+    - Name: func-corelogic-prod-cin
+    - Runtime: Python 3.10
+    - Plan: Y1 (Consumption)
+
+Functions 1 - CoreLogic Data Imports (4):
+120. module.functions["corelogic"].azurerm_function_app_function.funcs[0]
+    - Name: corelogic-involuntary (2 AM)
+    - Trigger: Timer
+    - Runtime: Python
+
+121. module.functions["corelogic"].azurerm_function_app_function.funcs[1]
+    - Name: corelogic-foreclosure (3 AM)
+    - Trigger: Timer
+    - Runtime: Python
+
+122. module.functions["corelogic"].azurerm_function_app_function.funcs[2]
+    - Name: corelogic-tax (4 AM)
+    - Trigger: Timer
+    - Runtime: Python
+
+123. module.functions["corelogic"].azurerm_function_app_function.funcs[3]
+    - Name: corelogic-hoamx (5 AM)
+    - Trigger: Timer
+    - Runtime: Python
+
+Function App 2 - Scheduler (1):
+124. module.functions["scheduler"].azurerm_linux_function_app.app
+    - Name: func-scheduler-prod-cin
+    - Runtime: Python 3.10
+    - Plan: Y1 (Consumption)
+
+Functions 2 - Scheduled Tasks (3):
+125. module.functions["scheduler"].azurerm_function_app_function.funcs[0]
+    - Name: CoreLogicDeedToS3 (1 AM)
+    - Trigger: Timer
+    - Runtime: Python
+
+126. module.functions["scheduler"].azurerm_function_app_function.funcs[1]
+    - Name: corelogic-deed (6 AM)
+    - Trigger: Timer
+    - Runtime: Python
+
+127. module.functions["scheduler"].azurerm_function_app_function.funcs[2]
+    - Name: EC2-dev-Scheduler (10 PM)
+    - Trigger: Timer
+    - Runtime: Python
+
+CATEGORY 11: DATABASE MIGRATION (2 resources)
+================================================================
+
+Database Migration Service (1):
+128. module.database_migration_services["primary"].azurerm_database_migration_service.dms
+    - Name: dms-rewn-prod
+    - SKU: Standard_1vCores
+    - Source: AWS RDS MySQL
+    - Target: Azure MySQL
+
+Migration Project (1):
+129. module.database_migration_services["primary"].azurerm_database_migration_project.project
+    - Name: mig-mysql-prod
+    - Source Server: production-whm8.rds.amazonaws.com
+    - Target Server: mysql-rewn-prod-cin.mysql.database.azure.com
+
+================================================================================
+PLAN SUMMARY
+================================================================================
+
+Plan: 128 to add, 0 to change, 0 to destroy
+
+Resource Breakdown:
+  - Resource Groups: 7
+  - Networking: 45+
+  - Compute: 2
+  - Database & Caching: 3
+  - Storage: 35+
+  - Security & Identity: 5+
+  - Ingress & Load Balancing: 2+
+  - Monitoring & Logging: 6
+  - Backup & Disaster Recovery: 2
+  - Serverless Computing: 9
+  - Database Migration: 2
+  ─────────────────────────
+  TOTAL: 128 resources
+
+================================================================================
+KEY CONFIGURATION DETAILS
+================================================================================
+
+NETWORKING:
+  - Hub-Spoke Topology
+  - Hub VNET: 10.10.0.0/16
+  - Spoke VNET: 10.20.0.0/16
+  - Private Endpoints: All databases
+  - NAT Gateways: 2 (for egress)
+  - Bastion Host: 1 (secure access)
+  - NSGs: 6+ (per-subnet)
+  - Private DNS Zones: 4+ (mysql, cosmos, storage, redis)
+
+COMPUTE (AKS):
+  - Name: aks-rewn-prod-cin
+  - Version: 1.28
+  - Network Plugin: Overlay CNI (not Azure CNI)
+  - Network Policy: Calico (advanced networking)
+  - Zones: 3 (1, 2, 3 - zone-redundant)
+  - Nodes: 3 x Standard_D2s_v3
+  - Load Balancer: Standard
+
+COMPUTE (ACR):
+  - Name: acrreewnprod
+  - SKU: Premium (multi-replicated)
+  - Zone Redundancy: Enabled
+  - Content Trust: Enabled
+  - Retention: 30 days (untagged)
+  - Auto-linked to AKS
+
+DATABASES:
+  - MySQL: B_Standard_B2s, zone-redundant HA, 35-day backups
+  - Cosmos DB: MongoDB API, multi-region, auto-failover
+  - Redis: Premium tier, HA enabled, zone-redundant
+
+STORAGE:
+  - 6 Storage Accounts
+  - 22 Blob Containers
+  - 4 Azure File Shares
+  - Redundancy: ZRS (zone-redundant), LRS
+  - Private Endpoints: 3+
+
+FUNCTIONS:
+  - 2 Function Apps
+  - 7 Timer-triggered Functions
+  - Schedules: 1-6 AM and 10 PM
+  - Runtime: Python 3.10
+  - Plan: Y1 Consumption (serverless)
+
+INGRESS:
+  - Application Gateway v2 (WAF v3.0)
+  - Front Door (CDN + global LB)
+
+MONITORING:
+  - Log Analytics: 30-day retention
+  - Application Insights: 90-day retention
+  - Alert Rules: CPU > 80%, Storage > 85%
+  - Diagnostic Settings: All major services
+
+================================================================================
+HOW TO EXECUTE PLAN
+================================================================================
+
+Method 1: Direct Command
+cd infrastructure/terraform
+terraform plan \
+  -var-file="environments/prod/_globals.tfvars" \
+  -var-file="environments/prod/resource_groups.tfvars" \
+  -var-file="environments/prod/networking.tfvars" \
+  -var-file="environments/prod/compute.tfvars" \
+  -var-file="environments/prod/storage.tfvars" \
+  -var-file="environments/prod/databases.tfvars" \
+  -var-file="environments/prod/security.tfvars" \
+  -var-file="environments/prod/monitoring.tfvars" \
+  -var-file="environments/prod/backup.tfvars" \
+  -var-file="environments/prod/functions.tfvars" \
+  -var-file="environments/prod/application_gateway.tfvars" \
+  -var-file="environments/prod/front_door.tfvars" \
+  -var-file="environments/prod/migration.tfvars"
+
+Method 2: Using PowerShell Script
+cd infrastructure/terraform
+pwsh .\PLAN_COMMAND.ps1
+
+================================================================================
+NEXT STEPS AFTER PLAN
+================================================================================
+
+1. Review the plan output carefully
+2. Verify all 128 resources will be created correctly
+3. Execute terraform apply when ready:
+
+terraform apply -lock=false \
+  -var-file="environments/prod/_globals.tfvars" \
+  -var-file="environments/prod/backup.tfvars" \
+  -var-file="environments/prod/compute.tfvars" \
+  -var-file="environments/prod/databases.tfvars" \
+  -var-file="environments/prod/monitoring.tfvars" \
+  -var-file="environments/prod/networking.tfvars" \
+  -var-file="environments/prod/resource_groups.tfvars" \
+  -var-file="environments/prod/security.tfvars" \
+  -var-file="environments/prod/storage.tfvars" \
+  -var-file="environments/prod/application_gateway.tfvars" \
+  -var-file="environments/prod/front_door.tfvars" \
+  -var-file="environments/prod/functions.tfvars" \
+  -var-file="environments/prod/migration.tfvars"
+
+4. Monitor deployment in Azure Portal
+5. Collect terraform outputs for:
+   - AKS kubeconfig
+   - ACR login server
+   - Database connection strings
+   - Function App endpoints
+
+6. Post-deployment validation:
+   - Verify AKS cluster is running
+   - Confirm ACR is accessible
+   - Test database connectivity
+   - Validate Functions are deployed
+   - Check monitoring alerts
+
+================================================================================
+Generated: 2026-08-06
+Status: READY FOR EXECUTION
+================================================================================

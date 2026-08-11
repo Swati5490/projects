@@ -1,0 +1,22 @@
+apiVersion: v2
+name: rewn-fastapi
+description: REWN FastAPI - Multi-database service with AI/ML components (MongoDB, MySQL, Redis, Chroma, Ollama)
+type: application
+version: 1.0.0
+appVersion: "production"
+home: https://rewn.io
+sources:
+  - https://github.com/rewn-platform/rewn-fastapi
+maintainers:
+  - name: REWN Platform Team
+    email: platform@rewn.io
+keywords:
+  - fastapi
+  - python
+  - mongodb
+  - mysql
+  - redis
+  - chroma
+  - ollama
+  - ai
+  - kubernetes

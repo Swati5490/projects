@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rewn-fastapi.fullname" . }}
+  labels:
+    {{- include "rewn-fastapi.labels" . | nindent 4 }}
+data:
+  ENV_MODE: "production"
+  ENV_PORT: "8080"
+  REDIS_HOST: "redis.rewn-state"
+  REDIS_PORT: "43768"
+  MONGO_HOST: "mongo.rewn-state"
+  MONGO_HOSTS: "mongorep1.rewn-state:37451,mongorep2.rewn-state:37451,mongorep3.rewn-state:37451"
+  MONGO_USERNAME: "mongo_admin"
+  MYSQL_HOST: "production-whm.c0jpywzdh6dm.us-east-1.rds.amazonaws.com"
+  MYSQL_USERNAME: "funnels"
+  CHROMA_HOST: "172.31.103.129"
+  OLLAMA_API_HOST: "http://172.31.13.127:8080"
+  JWKS_ENDPOINT: "https://auth.rewn.io/oidc/jwks"

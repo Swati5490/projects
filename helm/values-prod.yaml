@@ -1,0 +1,126 @@
+# Default values for all microservices - Production Environment
+# This is a YAML-formatted file.
+
+# Global settings
+global:
+  environment: prod
+  region: cin
+  registry: acrreewnprod.azurecr.io
+  domain: rewn.com
+
+# Replica settings
+replicaCount: 3
+
+# Image pull settings
+imagePullSecrets:
+  - name: acr-secret
+
+# Resources for PROD (optimized)
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Autoscaling for PROD
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "azure-application-gateway"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "azure/application-gateway"
+  tls:
+    enabled: true
+
+# Database configuration - PROD
+database:
+  host: "mysql-rewn-prod-cin.mysql.database.azure.com"
+  port: 3306
+  user: "prodadmin"
+  sslRequired: true
+  connectionTimeout: 30
+
+# Cache configuration - PROD
+cache:
+  enabled: true
+  host: "redis-rewn-prod-cin.redis.cache.windows.net"
+  port: 6379
+  ttl: 86400
+  maxConnections: 20
+
+# Logging
+logging:
+  level: INFO
+  format: json
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus: true
+  applicationInsights: true
+  logAnalytics: true
+  alerting: true
+
+# Security
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Network policies
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Priority class
+priorityClassName: "high-priority"
+
+# Affinity rules
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+          topologyKey: kubernetes.io/hostname
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: zone
+              operator: In
+              values:
+                - "1"
+                - "2"
+                - "3"

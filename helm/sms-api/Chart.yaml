@@ -1,0 +1,13 @@
+apiVersion: v2
+name: sms-api
+description: SMS API service for RENW platform
+type: application
+version: 1.0.0
+appVersion: "production"
+keywords:
+  - sms
+  - twilio
+  - api
+  - service
+maintainers:
+  - name: IFI TechSolutions

@@ -1,0 +1,22 @@
+apiVersion: v2
+name: geo-api
+description: Geo API microservice - RENW Platform (ECS Task Definition Revision 11, Elasticsearch + OIDC Auth)
+type: application
+version: 1.0.0
+appVersion: "production"
+keywords:
+  - geo
+  - location
+  - elasticsearch
+  - oidc
+  - api
+  - microservice
+  - rewn
+maintainers:
+  - name: RENW DevOps Team
+    email: devops@rewn.io
+repository: https://github.com/rewn-io/helm-charts
+sources:
+  - https://github.com/rewn-io/geo-api
+home: https://geo-api.rewn.com
+dependencies: []

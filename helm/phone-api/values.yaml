@@ -1,0 +1,170 @@
+replicaCount: 3
+
+image:
+  registry: 770526846351.dkr.ecr.us-east-1.amazonaws.com
+  repository: phone-api
+  tag: "production"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: ecr-secret
+
+nameOverride: ""
+fullnameOverride: "phone-api"
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "phone-api-sa"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+
+ingress:
+  enabled: true
+  className: "azure-application-gateway"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "azure/application-gateway"
+  hosts:
+    - host: "phone-api.rewn.com"
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: phone-api-tls
+      hosts:
+        - "phone-api.rewn.com"
+
+resources:
+  limits:
+    cpu: 512m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 15
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - phone-api
+          topologyKey: kubernetes.io/hostname
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  initialDelaySeconds: 40
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 20
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+# Environment variables (non-sensitive)
+env:
+  - name: REDIS_HOST
+    value: "redis.rewn-state"
+  - name: REDIS_PORT
+    value: "43768"
+  - name: DB_USERNAME
+    value: "mongo_admin"
+  - name: NODE_ENV
+    value: "production"
+  - name: ACCOUNT_API_URL
+    value: "https://account.rewn.io/v1"
+  - name: JWKS_ENDPOINT
+    value: "https://auth.rewn.io/oidc/jwks"
+  # Note: DB_HOSTS and ES_HOSTS should NOT be hardcoded in plain text
+  # They should be injected via secrets or ConfigMap
+
+# Secrets stored in Kubernetes Secret (sensitive data)
+# These should be created separately using: kubectl create secret generic phone-api-secrets --from-literal=...
+secrets:
+  redisPassword: "redis-password"
+  dbPassword: "db-password"
+  mailgunKey: "mailgun-key"
+  dbHosts: "db-hosts"           # MongoDB replica set connection string
+  esHosts: "es-hosts"           # Elasticsearch cluster hosts (JSON array)
+
+# ConfigMap for infrastructure endpoints (non-sensitive)
+config:
+  # MongoDB replica set hosts (if not using DNS discovery)
+  dbHosts: "mongorep1.rewn-state:37451,mongorep2.rewn-state:37451,mongorep3.rewn-state:37451"
+  
+  # Elasticsearch cluster hosts (if not using service discovery)
+  esHosts: '["http://elasticsearch-0.elasticsearch.rewn-state:9200","http://elasticsearch-1.elasticsearch.rewn-state:9200","http://elasticsearch-2.elasticsearch.rewn-state:9200"]'
+
+logging:
+  driver: awslogs
+  awslogs:
+    group: "/ecs/phone-api--production"
+    region: "us-east-1"
+    streamPrefix: "ecs"
+
+# Database connection settings
+database:
+  type: "mongodb"
+  replicaSet: true
+  authSource: "admin"
+  retryWrites: true
+  ssl: false  # Consider enabling in production
+
+# Elasticsearch settings
+elasticsearch:
+  enabled: true
+  clientTimeout: 30000
+  maxRetries: 3
+
+# Redis connection settings
+redis:
+  db: 0
+  tls: false  # Consider enabling in production
+  connectTimeout: 10000

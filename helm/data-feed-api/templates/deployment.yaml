@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "data-feed-api.fullname" . }}
+  labels:
+    {{- include "data-feed-api.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "data-feed-api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "data-feed-api.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "data-feed-api.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+      
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /app/cache
+        
+        # Non-sensitive environment variables
+        env:
+        {{- range .Values.env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+        {{- end }}
+        
+        # Infrastructure endpoints from ConfigMap
+        - name: MONGO_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "data-feed-api.fullname" . }}-config
+              key: mongo-hosts
+        - name: DB_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "data-feed-api.fullname" . }}-config
+              key: elasticsearch-hosts
+        
+        # Sensitive environment variables from Kubernetes Secret
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "data-feed-api.fullname" . }}-secrets
+              key: mongo-password
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "data-feed-api.fullname" . }}-secrets
+              key: redis-password
+        - name: ZILLOW_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "data-feed-api.fullname" . }}-secrets
+              key: zillow-key
+        
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+        
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+        
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}

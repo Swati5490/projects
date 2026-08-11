@@ -1,0 +1,18 @@
+apiVersion: v2
+name: mail-manager-api
+description: RENW Mail Manager API - Email queue management and distribution service
+type: application
+version: 1.0.0
+appVersion: "production"
+keywords:
+  - mail
+  - email
+  - mailgun
+  - queue
+maintainers:
+  - name: RENW Platform
+    email: platform@rewn.io
+home: https://mail-manager.rewn.io
+sources:
+  - https://github.com/rewn-platform/mail-manager-api
+dependencies: []

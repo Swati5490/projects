@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mail-manager-api.fullname" . }}
+  labels:
+    {{- include "mail-manager-api.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mail-manager-api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "mail-manager-api.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mail-manager-api.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        env:
+        # Non-sensitive configuration from ConfigMap
+        - name: DATA_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: data-api-url
+        - name: ACCOUNT_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: account-api-url
+        - name: SCI_NET_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: sci-net-url
+        - name: MOTIVATED_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: motivated-api-url
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: redis-host
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: redis-port
+        - name: DB_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: db-hosts
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: db-username
+        - name: LOGGING_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: logging-level
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-config
+              key: node-env
+        # Sensitive secrets from Secret
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-secrets
+              key: redis-password
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-secrets
+              key: db-password
+        - name: MAILGUN_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mail-manager-api.fullname" . }}-secrets
+              key: mailgun-key
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

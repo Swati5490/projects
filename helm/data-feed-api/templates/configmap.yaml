@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "data-feed-api.fullname" . }}-config
+  labels:
+    {{- include "data-feed-api.labels" . | nindent 4 }}
+data:
+  # MongoDB replica set connection string
+  mongo-hosts: {{ .Values.config.mongoHosts | quote }}
+  
+  # Elasticsearch cluster hosts
+  elasticsearch-hosts: {{ .Values.config.elasticsearchHosts | quote }}
+  
+  # Data feed configuration
+  zillow-batch-size: {{ .Values.dataFeed.zillow.batchSize | quote }}
+  zillow-refresh-interval: {{ .Values.dataFeed.zillow.refreshInterval | quote }}
+  elasticsearch-index-prefix: {{ .Values.dataFeed.elasticsearch.indexPrefix | quote }}
+  elasticsearch-refresh-interval: {{ .Values.dataFeed.elasticsearch.refreshInterval | quote }}

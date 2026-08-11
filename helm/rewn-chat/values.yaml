@@ -1,0 +1,108 @@
+replicaCount: 2
+
+image:
+  repository: 770526846351.dkr.ecr.us-east-1.amazonaws.com/rewn-chat
+  pullPolicy: IfNotPresent
+  tag: production
+
+imagePullSecrets:
+  - name: ecr-pull-secret
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  name: rewn-chat
+
+ingress:
+  enabled: true
+  className: azure-application-gateway
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    azure.microsoft.com/waf-policy-priority: "1"
+  hosts:
+    - host: chat.rewn.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: rewn-chat-tls
+      hosts:
+        - chat.rewn.com
+
+resources:
+  requests:
+    cpu: 32m
+    memory: 32Mi
+  limits:
+    cpu: 128m
+    memory: 64Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+config:
+  nodeEnv: production
+
+secrets: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsReadOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+livenessProbe:
+  httpGet:
+    path: /health-check
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+readinessProbe:
+  httpGet:
+    path: /health-check
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+nodeSelector: {}
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - rewn-chat
+          topologyKey: kubernetes.io/hostname
+
+tolerations: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"

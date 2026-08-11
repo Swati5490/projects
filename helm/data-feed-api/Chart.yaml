@@ -1,0 +1,15 @@
+apiVersion: v2
+name: data-feed-api
+description: Data Feed API service for real estate data aggregation (Zillow integration)
+type: application
+version: 1.0.0
+appVersion: "production"
+keywords:
+  - data-feed
+  - zillow
+  - real-estate
+  - mongodb
+  - elasticsearch
+  - api
+maintainers:
+  - name: IFI TechSolutions

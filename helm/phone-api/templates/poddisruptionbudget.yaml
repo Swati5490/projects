@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "phone-api.fullname" . }}
+  labels:
+    {{- include "phone-api.labels" . | nindent 4 }}
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      {{- include "phone-api.selectorLabels" . | nindent 6 }}

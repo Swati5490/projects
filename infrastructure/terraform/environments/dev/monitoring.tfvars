@@ -7,10 +7,10 @@
 # ============================================================================
 log_analytics_workspaces = {
   dev = {
-    name                = "law-rewn-dev-cin"
-    sku                 = "PerGB2018"
-    retention_in_days   = 7
-    daily_quota_gb      = 1
+    name              = "law-rewn-dev"
+    sku               = "PerGB2018"
+    retention_in_days = 7
+    daily_quota_gb    = 1
   }
 }
 
@@ -19,7 +19,7 @@ log_analytics_workspaces = {
 # ============================================================================
 app_insights = {
   dev = {
-    name              = "ai-rewn-dev-cin"
+    name              = "ai-rewn-dev"
     application_type  = "web"
     retention_in_days = 7
   }
@@ -30,7 +30,7 @@ app_insights = {
 # ============================================================================
 action_groups = {
   dev = {
-    name                = "ag-rewn-dev-cin"
+    name                = "ag-rewn-dev"
     short_name          = "agdev"
     email_receiver_name = "Dev Team"
     email_address       = "dev@rewn.io"
@@ -43,11 +43,11 @@ action_groups = {
 diagnostic_settings = {
   mysql_dev = {
     name                       = "diag-mysql-dev"
-    target_resource_id         = "mysql-rewn-dev-cin"
+    target_resource_id         = "mysql-rewn-dev"
     target_resource_type       = "mysql"
-    log_analytics_workspace_id = "law-rewn-dev-cin"
-    logs_enabled              = true
-    metrics_enabled           = true
+    log_analytics_workspace_id = "law-rewn-dev"
+    logs_enabled               = true
+    metrics_enabled            = true
   }
 }
 
@@ -56,15 +56,15 @@ diagnostic_settings = {
 # ============================================================================
 metric_alert_rules = {
   mysql_cpu_high = {
-    name                = "alert-mysql-cpu-high-dev"
-    resource_group      = "databases"
-    scopes             = ["mysql-rewn-dev-cin"]
-    metric_name        = "cpu_percent"
-    operator           = "GreaterThan"
-    threshold          = 75
-    aggregation        = "Average"
-    window_size        = "PT5M"
-    frequency          = "PT1M"
-    action_group       = "ag-mysql-dev"
+    name           = "alert-mysql-cpu-high-dev"
+    resource_group = "databases"
+    scopes         = ["mysql-rewn-dev"]
+    metric_name    = "cpu_percent"
+    operator       = "GreaterThan"
+    threshold      = 75
+    aggregation    = "Average"
+    window_size    = "PT5M"
+    frequency      = "PT1M"
+    action_group   = "ag-mysql-dev"
   }
 }

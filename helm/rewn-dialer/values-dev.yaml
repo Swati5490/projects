@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  # AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: rewn-dialer
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: rewn-dialer
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS task CPU = 128 units (~0.125 vCPU)
+    cpu: 125m
+    memory: 8Mi
+
+  limits:
+    # Actual AKS utilization dekhkar tune karna recommended hai
+    cpu: 250m
+    memory: 128Mi
+
+env: {}
+
+# Sensitive values Azure Key Vault se Secrets Store CSI Driver
+# ke through inject honge
+keyVault:
+  enabled: true
+  secrets: []
+
+# Azure Monitor / Container Insights
+azureMonitor:
+  enabled: true
+
+ingress:
+  enabled: false

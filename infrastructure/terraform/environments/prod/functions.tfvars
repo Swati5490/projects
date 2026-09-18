@@ -7,16 +7,16 @@
 # ============================================================================
 function_apps = {
   corelogic = {
-    name                  = "func-corelogic-prod-cin"
-    sku_name              = "Y1"
-    runtime               = "Python"
-    storage_account_name  = "stfuncrewnprod001"
+    name                 = "func-corelogic-prod"
+    sku_name             = "Y1"
+    runtime              = "Python"
+    storage_account_name = "stfuncrewnprod001"
   }
   scheduler = {
-    name                  = "func-scheduler-prod-cin"
-    sku_name              = "Y1"
-    runtime               = "Python"
-    storage_account_name  = "stfuncrewnprod001"
+    name                 = "func-scheduler-prod"
+    sku_name             = "Y1"
+    runtime              = "Python"
+    storage_account_name = "stfuncrewnprod001"
   }
 }
 

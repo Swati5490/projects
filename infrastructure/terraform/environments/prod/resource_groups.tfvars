@@ -1,33 +1,44 @@
-# Production Resource Groups
-# Usage: terraform plan -var-file="environments/prod/_globals.tfvars" -var-file="environments/prod/resource_groups.tfvars"
-
 resource_groups = {
-  network = {
-    name    = "rg-network-rewn-prod-cin"
+
+  rg_network = {
+    name    = "rg-network-rewn-prod"
     purpose = "Networking Infrastructure"
+    create  = true
   }
-  aks = {
-    name    = "rg-aks-rewn-prod-cin"
-    purpose = "Kubernetes Clusters"
-  }
-  databases = {
-    name    = "rg-db-rewn-prod-cin"
+
+  rg_databases = {
+    name    = "rg-db-rewn-prod"
     purpose = "Database Services"
+    create  = true
   }
-  storage = {
-    name    = "rg-storage-rewn-prod-cin"
+
+  rg_app = {
+    name    = "rg-app-rewn-prod"
+    purpose = "Application Services"
+    create  = true
+  }
+
+  rg_storage = {
+    name    = "rg-storage-rewn-prod"
     purpose = "Storage Accounts"
+    create  = true
   }
-  security = {
-    name    = "rg-security-rewn-prod-cin"
+
+  rg_security = {
+    name    = "rg-security-rewn-prod"
     purpose = "Security & Backup"
+    create  = true
   }
-  monitoring = {
-    name    = "rg-monitor-rewn-prod-cin"
+
+  rg_monitoring = {
+    name    = "rg-monitor-rewn-prod"
     purpose = "Monitoring & Logging"
+    create  = true
   }
-  compute = {
-    name    = "rg-compute-rewn-prod-cin"
+
+  rg_compute = {
+    name    = "rg-compute-rewn-prod"
     purpose = "Compute Resources"
+    create  = true
   }
 }

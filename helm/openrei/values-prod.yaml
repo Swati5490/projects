@@ -1,0 +1,65 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: openrei
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: openrei
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 128m
+
+    # ECS task definition me memoryReservation sirf 8 MB hai.
+    # TODO: Actual application memory usage verify karke correct request set karni hai.
+    memory: 8Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage dekhkar limits tune karni hain.
+    cpu: 128m
+    memory: 128Mi
+
+# ECS task definition me koi environment variable configured nahi hai.
+env: {}
+
+keyVault:
+  enabled: false
+  # ECS task definition me koi secret/environment secret available nahi hai.
+
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent AKS cluster level par configured hoga.
+
+healthCheck:
+  enabled: true
+
+  # ECS health check:
+  # curl -f http://localhost:8080/health-check || exit 1
+  path: /health-check
+  port: 8080
+
+  intervalSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+  # TODO: Helm deployment template me isko livenessProbe
+  # aur readinessProbe me map karna recommended hai.
+  initialDelaySeconds: 10
+
+ingress:
+  enabled: false
+
+  # TODO: Confirm karna hai kya openrei ko externally expose karna hai.
+  # Agar external access required hai:
+  # host: ""
+  # path: /
+  # pathType: Prefix

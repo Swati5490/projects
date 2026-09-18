@@ -40,19 +40,19 @@ resource "azurerm_linux_function_app" "main" {
 
   app_settings = merge(
     {
-      "FUNCTIONS_WORKER_RUNTIME"       = var.runtime
-      "WEBSITE_RUN_FROM_PACKAGE"       = "1"
-      "AzureWebJobsFeatureFlags"       = "EnableWorkerIndexing"
+      "FUNCTIONS_WORKER_RUNTIME" = var.runtime
+      "WEBSITE_RUN_FROM_PACKAGE" = "1"
+      "AzureWebJobsFeatureFlags" = "EnableWorkerIndexing"
     },
     var.app_settings
   )
 
   site_config {
-    minimum_tls_version            = "1.2"
-    http2_enabled                  = true
-    application_insights_key       = var.application_insights_key
+    minimum_tls_version                    = "1.2"
+    http2_enabled                          = true
+    application_insights_key               = var.application_insights_key
     application_insights_connection_string = var.application_insights_connection_string
-    
+
     cors {
       allowed_origins = ["*"]
     }
@@ -94,13 +94,13 @@ resource "azurerm_function_app_function" "main" {
   test_data       = var.test_data
 
   config_json = jsonencode({
-    scriptFile  = var.script_file
+    scriptFile = var.script_file
     bindings = [
       {
-        type       = "timerTrigger"
-        direction  = "in"
-        name       = "Timer"
-        schedule   = var.schedule
+        type      = "timerTrigger"
+        direction = "in"
+        name      = "Timer"
+        schedule  = var.schedule
       },
       {
         type       = "queue"

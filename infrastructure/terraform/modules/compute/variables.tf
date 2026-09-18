@@ -63,6 +63,18 @@ variable "zones" {
   default     = ["1", "2", "3"]
 }
 
+variable "node_pools" {
+  description = "Additional AKS node pools"
+  type = map(object({
+    name       = string
+    vm_size    = optional(string, "Standard_D2s_v3")
+    node_count = optional(number, 1)
+    mode       = optional(string, "User")
+    zones      = optional(list(string), [])
+  }))
+  default = {}
+}
+
 variable "environment" {
   description = "Environment name"
   type        = string
@@ -77,4 +89,9 @@ variable "tags" {
   description = "Tags to apply"
   type        = map(string)
   default     = {}
+}
+
+variable "network_plugin_mode" {
+  type    = string
+  default = null
 }

@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: ressentials
+  tag: staging
+  pullPolicy: Always
+
+container:
+  name: ressentials
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS task CPU = 128, Memory = 8
+    cpu: 128m
+    memory: 8Mi
+
+  limits:
+    # TODO: Actual CPU/Memory utilization dekhkar limits tune karni hain
+    cpu: 128m
+    memory: 8Mi
+
+# ECS task definition me koi environment variable configured nahi tha
+env: {}
+
+# Sensitive values
+# ECS task definition me koi sensitive environment variables nahi the
+keyVault:
+  enabled: false
+
+  secrets: []
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+  # ECS task definition me external domain / ingress configuration available nahi tha
+  # TODO: Confirm karna hai ki ressentials staging me externally accessible hai
+  # ya sirf other microservices ke through access hoti hai.

@@ -1,0 +1,85 @@
+replicaCount: 1
+
+image:
+  # AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: rest
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: rest
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  requests:
+    # ECS Task CPU = 256 units (~0.25 vCPU)
+    # ECS Memory Reservation = 512 MiB
+    cpu: 250m
+    memory: 512Mi
+
+  limits:
+    # Actual production utilization dekhkar tune karna chahiye
+    cpu: 500m
+    memory: 512Mi
+
+env:
+  CIRCLE_BRANCH: main
+
+  # Application configuration
+  SITE_DOMAIN: "realestateskiptrace.com"
+
+  # Existing AWS configuration
+  # Azure migration ke baad application dependency ke according
+  # Azure equivalent services review karni hongi
+  AWS_REGION: "us-east-1"
+  AWS_ACCOUNT_ID: "770526846351"
+  AWS_RESOURCE_NAME_PREFIX: "rest"
+
+# Sensitive values Azure Key Vault se
+# Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - NPM_TOKEN
+
+# ECS EFS volume "user-files" ko AKS persistent storage me migrate karna hoga
+persistence:
+  enabled: true
+
+  existingClaim: ""
+
+  # Azure Files suitable ho sakta hai because shared file storage
+  storageClass: ""
+
+  accessMode: ReadWriteMany
+
+  size: 10Gi
+
+  mountPath: "/web/app/user-files"
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+# Production website externally accessible hai
+ingress:
+  enabled: true
+
+  # Actual ingress class AKS architecture ke according configure hogi
+  className: ""
+
+  hosts:
+    - host: "realestateskiptrace.com"
+      paths:
+        - path: /
+          pathType: Prefix

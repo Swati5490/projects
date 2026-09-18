@@ -25,3 +25,28 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "log_analytics_workspaces" {
+  type    = map(any)
+  default = {}
+}
+
+variable "app_insights" {
+  type    = map(any)
+  default = {}
+}
+
+variable "action_groups" {
+  type    = map(any)
+  default = {}
+}
+
+variable "diagnostic_settings" {
+  type    = map(any)
+  default = {}
+}
+
+variable "metric_alert_rules" {
+  type    = map(any)
+  default = {}
+}

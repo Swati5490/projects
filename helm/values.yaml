@@ -1,0 +1,41 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  tag: ""
+  pullPolicy: Always
+
+container:
+  name: ""
+  port: 80
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  requests:
+    cpu: ""
+    memory: ""
+  limits:
+    cpu: ""
+    memory: ""
+
+env: {}
+
+ingress:
+  enabled: false
+  host: ""
+
+keyVault:
+  enabled: true
+  name: ""
+  secrets: []
+
+storage:
+  enabled: false
+
+monitoring:
+  enabled: true

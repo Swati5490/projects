@@ -1,0 +1,185 @@
+# =====================================================
+# COMPS - PRODUCTION
+# AKS / Azure Helm Values
+#
+# Source ECS Task Definition:
+# comps--production:15
+# Container:
+# comps
+# =====================================================
+
+nameOverride: comps
+fullnameOverride: comps--production
+
+replicaCount: 1
+# TODO: Confirm actual ECS Service desiredCount before final production deployment.
+
+image:
+  # Same application/image name as ECS: comps
+  # TODO: Image should be migrated from AWS ECR to Azure Container Registry.
+  repository: <acr-name>.azurecr.io/comps
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: comps
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+
+# =====================================================
+# RESOURCE MAPPING
+# ECS Task:
+# CPU    : 256
+# Memory : 512 MiB
+# =====================================================
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 512Mi
+
+  limits:
+    # TODO: Validate limits through Azure Monitor after migration.
+    cpu: 512m
+    memory: 1Gi
+
+
+# =====================================================
+# NON-SENSITIVE ENVIRONMENT VARIABLES
+# =====================================================
+
+env:
+  CIRCLE_BRANCH: master
+
+  # TODO:
+  # Keep only if the application still communicates with AWS.
+  AWS_REGION: us-east-1
+
+  # TODO:
+  # Remove if application no longer requires AWS account information.
+  AWS_ACCOUNT_ID: "770526846351"
+
+  AWS_RESOURCE_NAME_PREFIX: comps
+
+  SITE_DOMAIN: comps.rewn.io
+
+
+# =====================================================
+# SECRETS
+# Azure Key Vault
+# =====================================================
+
+keyVault:
+  enabled: true
+
+  # TODO: Update with actual Key Vault name
+  name: <keyvault-name>
+
+  secrets:
+    # AWS secrets should ideally be removed if application
+    # is completely migrated away from AWS.
+    - aws-access-key-id
+    - aws-secret-access-key
+
+    # Application/build secret
+    - npm-token
+
+
+# =====================================================
+# PERSISTENT STORAGE
+#
+# ECS Source:
+# EFS: fs-0a9783803615593d8
+# Access Point: fsap-0e49a2021f5d864a7
+#
+# ECS Mount:
+# /web/app/user-files
+#
+# Azure Target:
+# Blob Storage / Azure Files
+# =====================================================
+
+storage:
+  enabled: true
+
+  # TODO:
+  # Validate application requirement.
+  # Use azureFile if application requires traditional
+  # shared filesystem semantics.
+  #
+  # Use azureBlob if Blob CSI is sufficient.
+  type: azureBlob
+
+  # TODO: Update after Azure Storage Account creation
+  storageAccount: <storage-account-name>
+
+  # TODO: Create blob container
+  containerName: user-files
+
+  # Same container mount path as ECS
+  mountPath: /web/app/user-files
+
+
+# =====================================================
+# LOGGING
+#
+# ECS Source:
+# CloudWatch: /ecs/comps--production
+#
+# Azure Target:
+# Azure Monitor + Log Analytics
+# =====================================================
+
+logging:
+  enabled: true
+  provider: azureMonitor
+
+  # TODO:
+  # Configure AKS Container Insights and Log Analytics.
+
+
+# =====================================================
+# INGRESS
+# =====================================================
+
+ingress:
+  enabled: true
+
+  # TODO:
+  # Change based on selected ingress architecture.
+  # Possible values: nginx / azure-application-gateway
+  className: nginx
+
+  hosts:
+    - host: comps.rewn.io
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls:
+    enabled: true
+
+    # TODO:
+    # Configure certificate using Azure Key Vault /
+    # cert-manager.
+    secretName: comps-production-tls
+
+
+# =====================================================
+# AUTOSCALING
+# =====================================================
+
+autoscaling:
+  enabled: false
+
+  # TODO: Enable after workload testing.
+  minReplicas: 1
+  maxReplicas: 5
+
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

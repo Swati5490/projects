@@ -1,0 +1,87 @@
+replicaCount: 1
+
+image:
+  # ECS ECR image ko Azure Container Registry (ACR) me migrate karein
+  repository: myiflip
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: myiflip
+  port: 80
+
+resources:
+  # ECS Task:
+  # CPU = 256 units ≈ 0.25 vCPU
+  # Memory reservation = 512 MiB
+
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage dekhkar limits tune karni hain
+    cpu: 250m
+    memory: 512Mi
+
+env:
+  CIRCLE_BRANCH: master
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: "<from-configuration>"
+  AWS_RESOURCE_NAME_PREFIX: myiflip
+  SITE_DOMAIN: "my.ifliprealestate.com"
+
+  # EFS dependency
+  # AWS EFS → Azure Files migration required
+  # Mount path: /web/app/user-files
+
+keyVault:
+  enabled: true
+
+  secrets:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - NPM_TOKEN
+
+azureMonitor:
+  enabled: true
+  # Log Analytics + Azure Monitor
+  # Container Apps Environment level par configured hoga
+
+healthCheck:
+  enabled: false
+
+  # ECS task definition me health check configured nahi hai
+  path: "/"
+  port: 80
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 30
+    failureThreshold: 3
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 30
+    failureThreshold: 3
+
+storage:
+  enabled: true
+
+  volumeName: user-files
+  mountPath: "/web/app/user-files"
+
+  # AWS EFS → Azure Files
+  storageType: AzureFiles
+
+ingress:
+  enabled: true
+
+  external: true
+  targetPort: 80
+  transport: http
+
+  # Custom domain
+  customDomain: "my.ifliprealestate.com"

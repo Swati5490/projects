@@ -1,0 +1,170 @@
+# ==========================================
+# COMPS - DEVELOPMENT
+# AKS / Azure Helm Values
+# Source: ECS task definition comps--develop
+# ==========================================
+
+replicaCount: 1
+
+image:
+  # TODO: Migrate image from AWS ECR to Azure Container Registry (ACR)
+  repository: <acr-name>.azurecr.io/comps
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: comps
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 512Mi
+
+  limits:
+    # TODO: Tune limits after AKS monitoring/performance testing
+    cpu: 512m
+    memory: 1Gi
+
+
+# ==========================================
+# NON-SENSITIVE ENVIRONMENT VARIABLES
+# ==========================================
+
+env:
+  CIRCLE_BRANCH: develop
+
+  # TODO:
+  # Remove if application does not actually require AWS_REGION.
+  # If Azure region is required by application, use:
+  # AZURE_REGION: centralindia
+  AWS_REGION: us-east-1
+
+  # AWS account-specific value.
+  # TODO: Remove after confirming application doesn't depend on it.
+  AWS_ACCOUNT_ID: "770526846351"
+
+  AWS_RESOURCE_NAME_PREFIX: comps
+
+  SITE_DOMAIN: comps.dev.rewn.io
+
+
+# ==========================================
+# SECRETS
+# Azure Key Vault + Secrets Store CSI Driver
+# ==========================================
+
+keyVault:
+  enabled: true
+
+  # TODO: Update with actual Azure Key Vault name
+  name: <keyvault-name>
+
+  # Secrets required by the application:
+  secrets:
+    - aws-access-key-id
+    - aws-secret-access-key
+    - npm-token
+
+# NOTE:
+# AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY should ideally be removed
+# completely if the application is fully migrated away from AWS.
+#
+# NPM_TOKEN should be retrieved from Azure Key Vault.
+
+
+# ==========================================
+# PERSISTENT STORAGE
+# ECS SOURCE:
+# EFS fs-0a9783803615593d8
+# Mounted at /web/app/user-files
+#
+# AZURE TARGET:
+# Azure Blob Storage using Blob CSI Driver
+# OR Azure Files CSI Driver
+# ==========================================
+
+storage:
+  enabled: true
+
+  type: azureBlob
+
+  # TODO: Create Azure Storage Account
+  storageAccount: <storage-account-name>
+
+  # TODO: Create blob container
+  containerName: user-files
+
+  mountPath: /web/app/user-files
+
+# NOTE:
+# Before finalizing, validate whether the application requires
+# full POSIX/file-system semantics.
+#
+# If yes -> Azure Files may be more suitable than Blob CSI.
+# If object/blob-style storage is sufficient -> Azure Blob CSI.
+
+
+# ==========================================
+# LOGGING
+# ECS CloudWatch Logs
+# /ecs/comps--develop
+#
+# AZURE TARGET:
+# Azure Monitor + Log Analytics
+# ==========================================
+
+logging:
+  enabled: true
+
+  provider: azureMonitor
+
+  # Logs will be collected through AKS Azure Monitor integration.
+  # TODO: Confirm Log Analytics Workspace / DCR configuration.
+
+
+# ==========================================
+# INGRESS
+# ECS exposed container port: 80
+# AKS recommendation: Ingress
+# ==========================================
+
+ingress:
+  enabled: true
+
+  className: nginx
+  # TODO: Change if using Application Gateway Ingress Controller (AGIC)
+
+  hosts:
+    - host: comps.dev.rewn.io
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls:
+    enabled: true
+    secretName: comps-dev-tls
+
+    # TODO:
+    # Configure Azure Key Vault certificate integration
+    # or cert-manager.
+
+
+# ==========================================
+# AUTOSCALING
+# TODO: Enable after workload metrics are known
+# ==========================================
+
+autoscaling:
+  enabled: false
+
+  minReplicas: 1
+  maxReplicas: 3
+
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

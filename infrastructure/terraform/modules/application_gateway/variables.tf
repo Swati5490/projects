@@ -1,15 +1,208 @@
-variable "resource_group_name" {
-  description = "Name of the resource group"
-  type        = string
+# ============================================================================
+# APPLICATION GATEWAY MODULE VARIABLES
+# ============================================================================
+
+variable "application_gateways" {
+  description = "Application Gateway configuration"
+
+  type = map(object({
+
+    # ------------------------------------------------------------------------
+    # BASIC
+    # ------------------------------------------------------------------------
+
+    name = string
+
+    sku_name = string
+    sku_tier = string
+
+    capacity = number
+
+    enable_autoscale       = bool
+    autoscale_min_capacity = number
+    autoscale_max_capacity = number
+
+    # ------------------------------------------------------------------------
+    # FRONTEND
+    # ------------------------------------------------------------------------
+
+    public_ip_address_id = string
+
+    frontend_ip_configuration_name = string
+
+    frontend_ports = map(object({
+      name = string
+      port = number
+    }))
+
+    # ------------------------------------------------------------------------
+    # BACKEND ADDRESS POOLS
+    # ------------------------------------------------------------------------
+
+    backend_address_pools = map(object({
+      name         = string
+      fqdns        = list(string)
+      ip_addresses = list(string)
+    }))
+
+    # ------------------------------------------------------------------------
+    # BACKEND HTTP SETTINGS
+    # ------------------------------------------------------------------------
+
+    backend_http_settings = map(object({
+      name                                = string
+      cookie_based_affinity               = string
+      port                                = number
+      protocol                            = string
+      request_timeout                     = number
+      probe_name                          = optional(string, null)
+      host_name                           = optional(string, null)
+      pick_host_name_from_backend_address = optional(bool, false)
+    }))
+
+    # ------------------------------------------------------------------------
+    # HTTP LISTENERS
+    # ------------------------------------------------------------------------
+
+    http_listeners = map(object({
+      name                           = string
+      frontend_port_name             = string
+      protocol                       = string
+      host_name                      = optional(string, null)
+      require_sni                    = optional(bool, false)
+      ssl_certificate_name           = optional(string, null)
+      firewall_policy_id             = optional(string, null)
+    }))
+
+    # ------------------------------------------------------------------------
+    # REQUEST ROUTING RULES
+    # ------------------------------------------------------------------------
+
+    request_routing_rules = map(object({
+      name                        = string
+      rule_type                   = string
+      priority                    = number
+      http_listener_name          = string
+      backend_address_pool_name   = optional(string, null)
+      backend_http_settings_name  = optional(string, null)
+      redirect_configuration_name = optional(string, null)
+      rewrite_rule_set_name       = optional(string, null)
+      url_path_map_name           = optional(string, null)
+    }))
+
+    # ------------------------------------------------------------------------
+    # HEALTH PROBES
+    # ------------------------------------------------------------------------
+
+    probes = map(object({
+      name                                      = string
+      protocol                                  = string
+      path                                      = string
+      interval                                  = number
+      timeout                                   = number
+      unhealthy_threshold                       = number
+      pick_host_name_from_backend_http_settings = optional(bool, false)
+      host                                      = optional(string, null)
+
+      match = optional(object({
+        status_code = list(string)
+      }), null)
+    }))
+
+    # ------------------------------------------------------------------------
+    # SSL CERTIFICATES
+    # ------------------------------------------------------------------------
+
+    ssl_certificates = map(object({
+      name                = string
+      key_vault_secret_id = string
+    }))
+
+    # ------------------------------------------------------------------------
+    # URL PATH MAPS
+    # ------------------------------------------------------------------------
+
+    url_path_maps = map(object({
+      name                               = string
+      default_backend_address_pool_name  = string
+      default_backend_http_settings_name = string
+
+      path_rules = map(object({
+        name                       = string
+        paths                      = list(string)
+        backend_address_pool_name  = optional(string, null)
+        backend_http_settings_name = optional(string, null)
+      }))
+    }))
+
+    # ------------------------------------------------------------------------
+    # REDIRECT CONFIGURATIONS
+    # ------------------------------------------------------------------------
+
+    redirect_configurations = map(object({
+      name                 = string
+      redirect_type        = string
+      target_listener_name = optional(string, null)
+      target_url           = optional(string, null)
+      include_path         = optional(bool, true)
+      include_query_string = optional(bool, true)
+    }))
+
+    # ------------------------------------------------------------------------
+    # WAF
+    # ------------------------------------------------------------------------
+
+    waf_enabled          = bool
+    waf_firewall_mode    = string
+    waf_rule_set_type    = string
+    waf_rule_set_version = string
+    firewall_policy_id   = optional(string, null)
+
+    # ------------------------------------------------------------------------
+    # HTTP2
+    # ------------------------------------------------------------------------
+
+    enable_http2 = bool
+
+    # ------------------------------------------------------------------------
+    # ROOT MODULE LOOKUP KEYS
+    # These are consumed before the values reach the child resource.
+    # ------------------------------------------------------------------------
+
+    resource_group_key   = optional(string, null)
+    subnet_key            = optional(string, null)
+    public_ip_key         = optional(string, null)
+    managed_identity_key = optional(string, null)
+
+    # ------------------------------------------------------------------------
+    # These are injected by root main.tf using merge()
+    # ------------------------------------------------------------------------
+
+    resource_group_name = optional(string, null)
+    subnet_id           = optional(string, null)
+    managed_identity_id = optional(string, null)
+  }))
+
+  default = {}
 }
+
+
+# ============================================================================
+# LOCATION
+# ============================================================================
 
 variable "location" {
   description = "Azure region"
   type        = string
 }
 
+
+# ============================================================================
+# COMMON TAGGING
+# ============================================================================
+
 variable "environment" {
-  description = "Environment name"
+  description = "Deployment environment"
   type        = string
 }
 
@@ -19,105 +212,7 @@ variable "project_name" {
 }
 
 variable "tags" {
-  description = "Tags to apply to resources"
+  description = "Common resource tags"
   type        = map(string)
   default     = {}
-}
-
-variable "appgw_name" {
-  description = "Name of Application Gateway"
-  type        = string
-  default     = null
-}
-
-variable "sku_name" {
-  description = "SKU name for AppGW (Standard_v2 or WAF_v2)"
-  type        = string
-  default     = "Standard_v2"
-}
-
-variable "sku_tier" {
-  description = "SKU tier (Standard or WAF)"
-  type        = string
-  default     = "Standard"
-}
-
-variable "capacity" {
-  description = "Number of instances"
-  type        = number
-  default     = 2
-}
-
-variable "subnet_id" {
-  description = "Subnet ID where AppGW will be deployed"
-  type        = string
-}
-
-variable "public_ip_name" {
-  description = "Public IP name for AppGW"
-  type        = string
-  default     = null
-}
-
-variable "backend_address_pools" {
-  description = "Backend address pools configuration"
-  type = map(object({
-    name = string
-    fqdns = optional(list(string))
-    ips   = optional(list(string))
-  }))
-  default = {}
-}
-
-variable "http_settings" {
-  description = "HTTP settings configuration"
-  type = map(object({
-    cookie_based_affinity = optional(string, "Disabled")
-    port                  = optional(number, 80)
-    protocol              = optional(string, "Http")
-    request_timeout       = optional(number, 30)
-  }))
-  default = {}
-}
-
-variable "http_listeners" {
-  description = "HTTP listeners configuration"
-  type = map(object({
-    port                     = number
-    protocol                 = optional(string, "Http")
-    host_name                = optional(string)
-    require_sni              = optional(bool, false)
-    ssl_certificate_name     = optional(string)
-  }))
-  default = {}
-}
-
-variable "request_routing_rules" {
-  description = "Request routing rules"
-  type = map(object({
-    rule_type            = string
-    http_listener_name   = string
-    backend_pool_name    = optional(string)
-    http_settings_name   = optional(string)
-    redirect_config_name = optional(string)
-  }))
-  default = {}
-}
-
-variable "enable_waf" {
-  description = "Enable WAF on AppGW"
-  type        = bool
-  default     = false
-}
-
-variable "waf_mode" {
-  description = "WAF mode (Detection or Prevention)"
-  type        = string
-  default     = "Detection"
-}
-
-variable "zones" {
-  description = "Availability zones"
-  type        = list(string)
-  default     = []
 }

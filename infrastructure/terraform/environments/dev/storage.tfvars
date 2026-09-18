@@ -7,14 +7,14 @@
 # ============================================================================
 storage_accounts = {
   dev = {
-    name                      = "strewndev001"
-    account_tier              = "Standard"
-    account_replication_type  = "LRS"
-    access_tier               = "Hot"
+    name                       = "strewndev001"
+    account_tier               = "Standard"
+    account_replication_type   = "LRS"
+    access_tier                = "Hot"
     https_traffic_only_enabled = true
-    min_tls_version           = "TLS1_2"
-    blob_delete_retention     = 7
-    versioning_enabled        = false
+    min_tls_version            = "TLS1_2"
+    blob_delete_retention      = 7
+    versioning_enabled         = false
   }
 }
 

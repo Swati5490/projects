@@ -1,0 +1,96 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:770526846351:task-definition/kibana:13",
+    "containerDefinitions": [
+        {
+            "name": "kibana",
+            "image": "docker.elastic.co/kibana/kibana:6.5.4",
+            "cpu": 0,
+            "memoryReservation": 512,
+            "portMappings": [
+                {
+                    "containerPort": 5601,
+                    "hostPort": 0,
+                    "protocol": "tcp",
+                    "name": "kibana-5601-tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "ELASTICSEARCH_URL",
+                    "value": "http://ip-172-31-19-160.ec2.internal:9200"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/kibana",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            }
+        },
+        {
+            "name": "bastion",
+            "image": "770526846351.dkr.ecr.us-east-1.amazonaws.com/kibana-bastion:protected",
+            "cpu": 0,
+            "memoryReservation": 512,
+            "links": [
+                "kibana:kibana"
+            ],
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "hostPort": 0,
+                    "protocol": "tcp",
+                    "name": "bastion-8080-tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": []
+        }
+    ],
+    "family": "kibana",
+    "taskRoleArn": "arn:aws:iam::770526846351:role/ecsTaskExecutionRole",
+    "revision": 13,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2"
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "256",
+    "memory": "1024",
+    "registeredAt": "2024-02-28T19:33:36.965Z",
+    "registeredBy": "arn:aws:iam::770526846351:user/shane",
+    "tags": []
+}

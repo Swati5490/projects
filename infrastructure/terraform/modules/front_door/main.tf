@@ -44,10 +44,10 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
     for pool_name, pool_config in var.backend_pools : {
       for idx, backend in pool_config.backends :
       "${pool_name}-${idx}" => {
-        pool_name      = pool_config.name
-        pool_id        = azurerm_cdn_frontdoor_origin_group.main[pool_name].id
-        address        = backend.address
-        port           = backend.port
+        pool_name = pool_config.name
+        pool_id   = azurerm_cdn_frontdoor_origin_group.main[pool_name].id
+        address   = backend.address
+        port      = backend.port
       }
     }
   ]...)
@@ -95,11 +95,11 @@ resource "azurerm_cdn_frontdoor_route" "main" {
   cdn_frontdoor_origin_ids = [
     azurerm_cdn_frontdoor_origin.main["${each.value.backend_pool_name}-0"].id
   ]
-  supported_protocols           = each.value.accepted_protocols
-  patterns_to_match             = [each.value.pattern_to_match]
-  forwarding_protocol           = "HttpsOnly"
-  link_to_default_domain        = false
-  enabled                       = true
+  supported_protocols    = each.value.accepted_protocols
+  patterns_to_match      = [each.value.pattern_to_match]
+  forwarding_protocol    = "HttpsOnly"
+  link_to_default_domain = false
+  enabled                = true
 
   cache {
     query_string_caching_behavior = "IgnoreQueryString"

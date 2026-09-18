@@ -7,11 +7,11 @@
 # ============================================================================
 database_migration_services = {
   mysql_prod = {
-    name         = "dms-rewn-prod"
-    sku_name     = "Standard_1vCores"
-    location     = "centralindia"
-    virtual_network = "vnet-hub-rewn-prod-cin"
-    subnet       = "snet-db-prod-cin"
+    name            = "dms-rewn-prod"
+    sku_name        = "Standard_1vCores"
+    location        = "centralindia"
+    virtual_network = "vnet-hub-rewn-prod"
+    subnet          = "snet-db-prod"
   }
 }
 
@@ -20,24 +20,24 @@ database_migration_services = {
 # ============================================================================
 migration_projects = {
   mysql_rds_prod = {
-    name                  = "mig-mysql-prod"
-    service_name          = "dms-rewn-prod"
-    source_platform       = "MySQL"
-    target_platform       = "AzureMySql"
-    migration_type        = "OnlineMigration"
+    name            = "mig-mysql-prod"
+    service_name    = "dms-rewn-prod"
+    source_platform = "MySQL"
+    target_platform = "AzureMySql"
+    migration_type  = "OnlineMigration"
     source_connection_info = {
-      server_name    = "production-whm8.xxxxxxxx.rds.amazonaws.com"
-      user_name      = "admin"
-      password       = "aws-rds-password"
-      port           = 3306
-      database_name  = "production_db"
+      server_name   = "production-whm8.xxxxxxxx.rds.amazonaws.com"
+      user_name     = "admin"
+      password_secret_name = "aws-rds-password"
+      port          = 3306
+      database_name = "production_db"
     }
     target_connection_info = {
-      server_name    = "mysql-rewn-prod-cin.mysql.database.azure.com"
-      user_name      = "mysqladmin"
-      password       = "P@ssw0rd!2024REWN"
-      port           = 3306
-      database_name  = "rewn_prod"
+      server_name   = "mysql-rewn-prod.mysql.database.azure.com"
+      user_name     = "mysqladmin"
+      password_secret_name = "mysql-admin-password"
+      port          = 3306
+      database_name = "rewn_prod"
     }
   }
 }

@@ -1,34 +1,48 @@
-output "appgw_id" {
-  description = "Application Gateway ID"
-  value       = try(azurerm_application_gateway.main[0].id, null)
+output "application_gateway_ids" {
+  description = "Application Gateway resource IDs"
+
+  value = {
+    for key, gateway in azurerm_application_gateway.main :
+    key => gateway.id
+  }
 }
 
-output "appgw_name" {
-  description = "Application Gateway name"
-  value       = try(azurerm_application_gateway.main[0].name, null)
+
+output "application_gateway_names" {
+  description = "Application Gateway names"
+
+  value = {
+    for key, gateway in azurerm_application_gateway.main :
+    key => gateway.name
+  }
 }
 
-output "public_ip_id" {
-  description = "Public IP ID"
-  value       = try(azurerm_public_ip.appgw[0].id, null)
+
+output "application_gateway_fqdns" {
+  description = "Application Gateway frontend FQDNs"
+
+  value = {
+    for key, gateway in azurerm_application_gateway.main :
+    key => gateway.frontend_ip_configuration[0].private_ip_address
+  }
 }
 
-output "public_ip_address" {
-  description = "Public IP address"
-  value       = try(azurerm_public_ip.appgw[0].ip_address, null)
+
+output "application_gateway_backend_address_pools" {
+  description = "Application Gateway backend address pools"
+
+  value = {
+    for key, gateway in azurerm_application_gateway.main :
+    key => gateway.backend_address_pool
+  }
 }
 
-output "public_ip_fqdn" {
-  description = "Public IP FQDN"
-  value       = try(azurerm_public_ip.appgw[0].fqdn, null)
-}
 
-output "backend_address_pool_ids" {
-  description = "Backend address pool IDs"
-  value       = try({ for pool in azurerm_application_gateway.main[0].backend_address_pool : pool.name => pool.id }, {})
-}
+output "application_gateway_public_ip_ids" {
+  description = "Public IP IDs associated with Application Gateway"
 
-output "http_settings_ids" {
-  description = "HTTP settings IDs"
-  value       = try({ for settings in azurerm_application_gateway.main[0].backend_http_settings : settings.name => settings.id }, {})
+  value = {
+    for key, gateway in var.application_gateways :
+    key => gateway.public_ip_address_id
+  }
 }

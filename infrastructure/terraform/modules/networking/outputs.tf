@@ -1,65 +1,84 @@
-# Networking Module - outputs.tf
+# ============================================================================
+# VNET OUTPUTS
+# ============================================================================
 
-output "vnet_id" {
-  description = "The ID of the Virtual Network"
-  value       = try(azurerm_virtual_network.main[0].id, null)
+output "vnet_ids" {
+  description = "IDs of created VNets"
+
+  value = {
+    for key, vnet in azurerm_virtual_network.main :
+    key => vnet.id
+  }
 }
 
-output "vnet_name" {
-  description = "The name of the Virtual Network"
-  value       = try(azurerm_virtual_network.main[0].name, null)
+output "vnet_names" {
+  description = "Names of created VNets"
+
+  value = {
+    for key, vnet in azurerm_virtual_network.main :
+    key => vnet.name
+  }
 }
 
-output "address_space" {
-  description = "The address space of the Virtual Network"
-  value       = try(azurerm_virtual_network.main[0].address_space, null)
+output "vnet_resource_group_names" {
+  description = "Resource group names of VNets"
+
+  value = {
+    for key, vnet in azurerm_virtual_network.main :
+    key => vnet.resource_group_name
+  }
 }
 
-output "subnet_id" {
-  description = "The ID of the subnet"
-  value       = try(azurerm_subnet.main[0].id, null)
+
+# ============================================================================
+# PRIVATE DNS ZONE OUTPUTS
+# ============================================================================
+
+output "private_dns_zone_ids" {
+  description = "IDs of created Private DNS Zones"
+
+  value = {
+    for key, zone in azurerm_private_dns_zone.main :
+    key => zone.id
+  }
 }
 
-output "nsg_id" {
-  description = "The ID of the Network Security Group"
-  value       = try(azurerm_network_security_group.main[0].id, null)
+output "private_dns_zone_names" {
+  description = "Names of created Private DNS Zones"
+
+  value = {
+    for key, zone in azurerm_private_dns_zone.main :
+    key => zone.name
+  }
 }
 
 # ============================================================================
-# NEW OUTPUTS - VNet Peering, Route Tables, NAT Gateways, Bastion, DNS Zones
+# SUBNET OUTPUTS
 # ============================================================================
 
-output "vnet_peering_ids" {
-  description = "IDs of VNet peerings"
-  value       = { for k, v in azurerm_virtual_network_peering.main : k => v.id }
+output "subnet_ids" {
+  description = "IDs of created Subnets"
+
+  value = {
+    for key, subnet in azurerm_subnet.main :
+    key => subnet.id
+  }
 }
 
-output "route_table_ids" {
-  description = "IDs of route tables"
-  value       = { for k, v in azurerm_route_table.main : k => v.id }
+output "subnet_names" {
+  description = "Names of created Subnets"
+
+  value = {
+    for key, subnet in azurerm_subnet.main :
+    key => subnet.name
+  }
 }
 
 output "public_ip_ids" {
-  description = "IDs of public IPs"
-  value       = { for k, v in azurerm_public_ip.main : k => v.id }
-}
+  description = "IDs of created public IPs"
 
-output "public_ip_addresses" {
-  description = "Public IP addresses"
-  value       = { for k, v in azurerm_public_ip.main : k => v.ip_address }
-}
-
-output "nat_gateway_ids" {
-  description = "IDs of NAT gateways"
-  value       = { for k, v in azurerm_nat_gateway.main : k => v.id }
-}
-
-output "bastion_ids" {
-  description = "IDs of Azure Bastion hosts"
-  value       = { for k, v in azurerm_bastion_host.main : k => v.id }
-}
-
-output "private_dns_zone_ids" {
-  description = "IDs of private DNS zones"
-  value       = { for k, v in azurerm_private_dns_zone.main : k => v.id }
+  value = {
+    for key, public_ip in azurerm_public_ip.main :
+    key => public_ip.id
+  }
 }

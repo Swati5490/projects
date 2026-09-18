@@ -1,22 +1,20 @@
-# Development Global Configuration
-# Usage: Include this file first with -var-file="environments/dev/_globals.tfvars"
+# ============================================================================
+# GLOBAL CONFIGURATION
+# ============================================================================
 
-subscription_id = "YOUR_AZURE_SUBSCRIPTION_ID"
-environment     = "dev"
-project_name    = "rewn"
-region          = "centralindia"
-region_short    = "cin"
+subscription_id = "89ad6a75-aed4-4795-8327-126cf76d67f5"
 
-# Tags applied to all resources
+environment  = "dev"
+project_name = "rewn"
+region       = "eastus"
+
+
+# ============================================================================
+# COMMON TAGS
+# ============================================================================
+
 tags = {
   ManagedBy      = "Terraform"
   Project        = "REWN"
-  Environment    = "Development"
-  CostCenter     = "engineering"
-  Owner          = "dev-team@rewn.io"
-  BackupRequired = "false"
-  CreatedDate    = "2026-08-05"
+  Environment    = "DEV"
 }
-
-cost_center = "engineering"
-owner       = "dev-team@rewn.io"

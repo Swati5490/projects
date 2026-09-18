@@ -1,33 +1,44 @@
-# Development Resource Groups
-# Usage: terraform plan -var-file="environments/dev/_globals.tfvars" -var-file="environments/dev/resource_groups.tfvars"
-
 resource_groups = {
-  network = {
-    name    = "rg-network-rewn-dev-cin"
+
+  rg_network = {
+    name    = "rg-network-rewn-dev"
     purpose = "Dev Networking"
+    create  = true
   }
-  aks = {
-    name    = "rg-aks-rewn-dev-cin"
+
+  rg_aks = {
+    name    = "rg-aks-rewn-dev"
     purpose = "Dev AKS Cluster"
+    create  = true
   }
-  databases = {
-    name    = "rg-db-rewn-dev-cin"
+
+  rg_databases = {
+    name    = "rg-db-rewn-dev"
     purpose = "Dev Databases"
+    create  = true
   }
-  storage = {
-    name    = "rg-storage-rewn-dev-cin"
+
+  rg_storage = {
+    name    = "rg-storage-rewn-dev"
     purpose = "Dev Storage"
+    create  = true
   }
-  security = {
-    name    = "rg-security-rewn-dev-cin"
+
+  rg_security = {
+    name    = "rg-security-rewn-dev"
     purpose = "Dev Security"
+    create  = true
   }
-  monitoring = {
-    name    = "rg-monitor-rewn-dev-cin"
+
+  rg_monitoring = {
+    name    = "rg-monitor-rewn-dev"
     purpose = "Dev Monitoring"
+    create  = true
   }
-  compute = {
-    name    = "rg-compute-rewn-dev-cin"
+
+  rg_compute = {
+    name    = "rg-compute-rewn-dev"
     purpose = "Dev Compute"
+    create  = true
   }
 }

@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: pipeline-ui
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: pipeline-ui
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS task CPU: 128
+    cpu: 128m
+    memory: 16Mi
+
+  limits:
+    # TODO: ECS memoryReservation bahut low (16 MiB) hai.
+    # Actual usage Azure Monitor se check karke production limits tune karein.
+    cpu: 128m
+    memory: 16Mi
+
+env: {}
+
+# No runtime secrets found in ECS task definition
+keyVault:
+  enabled: false
+  secrets: []
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+  # TODO: Confirm whether pipeline-ui requires external/browser access.
+  # If yes, enable ingress and configure host/path.

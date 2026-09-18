@@ -1,0 +1,47 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: private-lender-marketplace
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: private-lender-marketplace
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS task CPU = 512
+    cpu: 512m
+    memory: 256Mi
+
+  limits:
+    # TODO: Actual CPU/Memory utilization dekhkar limits tune karni hain
+    cpu: 512m
+    memory: 256Mi
+
+env: {}
+
+# Is service ke ECS task definition me koi environment variables nahi hain
+
+keyVault:
+  enabled: false
+  secrets: []
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+  # TODO: Check karna hai ki application ko externally expose karna hai ya nahi.
+  # ECS task definition me container port 8080 use ho raha hai,
+  # lekin external exposure ka detail task definition se confirm nahi hota.

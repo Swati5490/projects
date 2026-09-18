@@ -7,9 +7,9 @@
 # ============================================================================
 recovery_services_vaults = {
   primary = {
-    name                           = "rsv-rewn-prod-cin"
-    sku                            = "Standard"
-    storage_mode_type              = "GeoRedundant"
+    name              = "rsv-rewn-prod"
+    sku               = "Standard"
+    storage_mode_type = "GeoRedundant"
   }
 }
 
@@ -18,12 +18,12 @@ recovery_services_vaults = {
 # ============================================================================
 backup_policies = {
   daily_backup = {
-    name                = "backup-policy-rewn-prod-cin"
-    backup_frequency    = "Daily"
-    backup_time         = "02:00"
-    retention_daily     = 30
-    retention_weekly    = 12
-    retention_monthly   = 12
-    retention_yearly    = 7
+    name              = "backup-policy-rewn-prod"
+    backup_frequency  = "Daily"
+    backup_time       = "02:00"
+    retention_daily   = 30
+    retention_weekly  = 12
+    retention_monthly = 12
+    retention_yearly  = 7
   }
 }

@@ -1,0 +1,62 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: phpmya
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: phpmya
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 256Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage Azure Monitor se analyze karke tune karna hai
+    cpu: 256m
+    memory: 256Mi
+
+env:
+  CIRCLE_BRANCH: main
+
+  # TODO: Validate whether these AWS-specific variables
+  # are required by the application after Azure migration
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: "770526846351"
+  AWS_RESOURCE_NAME_PREFIX: phpmya
+
+  SITE_DOMAIN: phpmya-dev.rewn.io
+
+# Sensitive values Azure Key Vault se
+# Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    # TODO: Validate runtime requirement before injecting
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - NPM_TOKEN
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+
+  # TODO: SITE_DOMAIN available hai:
+  # phpmya-dev.rewn.io
+  # Check karna hai ki application ko external access chahiye
+  # ya internal/admin-only access.

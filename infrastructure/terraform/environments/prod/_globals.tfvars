@@ -1,22 +1,20 @@
-# Production Global Configuration
-# Usage: Include this file first with -var-file="environments/prod/_globals.tfvars"
+# ============================================================================
+# GLOBAL CONFIGURATION
+# ============================================================================
 
-subscription_id = "YOUR_AZURE_SUBSCRIPTION_ID"
-environment     = "prod"
-project_name    = "rewn"
-region          = "centralindia"
-region_short    = "cin"
+subscription_id = "79195af6-f82b-4b91-a3bb-73dce7f1c722"
 
-# Tags applied to all resources
+environment  = "prod"
+project_name = "rewn"
+region       = "centralindia"
+
+
+# ============================================================================
+# COMMON TAGS
+# ============================================================================
+
 tags = {
   ManagedBy      = "Terraform"
   Project        = "REWN"
-  Environment    = "Production"
-  CostCenter     = "engineering"
-  Owner          = "infra-team@rewn.io"
-  BackupRequired = "true"
-  CreatedDate    = "2026-08-05"
+  Environment    = "PROD"
 }
-
-cost_center = "engineering"
-owner       = "infra-team@rewn.io"

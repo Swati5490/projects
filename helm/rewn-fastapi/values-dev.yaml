@@ -1,0 +1,96 @@
+replicaCount: 1
+
+image:
+  # AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: rewn-fastapi
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: rewn-fastapi
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  # ECS task definition:
+  # CPU = 1024 units ≈ 1 vCPU
+  # Memory limit = 3072 MiB
+  # Memory reservation = 1024 MiB
+
+  requests:
+    cpu: 1000m
+    memory: 1Gi
+
+  limits:
+    cpu: 1000m
+    memory: 3Gi
+
+env:
+  # Application configuration
+  ENV_MODE: development
+  ENV_PORT: "8080"
+
+  # Redis
+  REDIS_HOST: "redis--develop.rewn-develop-state"
+  REDIS_PORT: "6379"
+
+  # MongoDB
+  MONGO_HOSTS: "mongodevrep1.rewn-state:37451,mongodevrep2.rewn-state:37451,mongodevrep3.rewn-state:37451"
+  MONGO_USERNAME: "mongo_admin"
+
+  # MySQL
+  MYSQL_HOST: "development-whm8.c0jpywzdh6dm.us-east-1.rds.amazonaws.com"
+  MYSQL_USERNAME: "funnels"
+
+  # Chroma
+  # TODO: AWS internal IP ko AKS/Azure compatible service endpoint se replace karna hoga
+  CHROMA_HOST: "172.31.97.26"
+
+  # Ollama
+  # TODO: AWS internal IP ko Azure/AKS internal service endpoint se replace karna hoga
+  OLLAMA_API_HOST: "http://172.31.13.127:8080"
+
+  # Authentication
+  JWKS_ENDPOINT: "https://auth.dev.rewn.io/oidc/jwks"
+
+# Sensitive values Azure Key Vault se
+# Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    - MYSQL_PASSWORD
+    - MONGO_PASSWORD
+    - OLLAMA_API_KEY
+
+# Azure AKS Monitoring
+azureMonitor:
+  enabled: true
+
+# Application health check
+healthCheck:
+  enabled: true
+  path: "/"
+  port: 8080
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 30
+    failureThreshold: 3
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 30
+    failureThreshold: 3
+
+ingress:
+  enabled: false
+
+  # TODO: Confirm whether rewn-fastapi needs external access.
+  # Agar sirf internal microservice hai to ClusterIP sufficient hai.

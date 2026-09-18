@@ -1,25 +1,46 @@
-# Production Security Configuration
-# Key Vault
-# Usage: terraform plan -var-file="environments/prod/_globals.tfvars" -var-file="environments/prod/security.tfvars"
+# ============================================================================
+# KEY VAULT - Production
+# ============================================================================
 
-# ============================================================================
-# KEY VAULT - Production (Count: 1 vault)
-# ============================================================================
 key_vaults = {
   primary = {
-    name                            = "kv-rewn-prod-cin"
-    sku                             = "standard"
-    purge_protection_enabled        = true
-    soft_delete_retention_days      = 90
-    enable_rbac_authorization       = true
+    name                       = "kv-rewn-prod-6789"
+    sku                        = "standard"
+    purge_protection_enabled   = true
+    soft_delete_retention_days = 90
+    enable_rbac_authorization  = true
+    create                     = true
   }
 }
 
 # ============================================================================
-# MANAGED IDENTITIES - Production (Count: 1)
+# MANAGED IDENTITIES - Production
 # ============================================================================
+
 managed_identities = {
-  aks = {
-    name = "mi-aks-prod"
+
+  # Shared identity for multiple VMs accessing Blob Storage
+  storage = {
+    name   = "mi-storage-prod"
+    create = true
+  }
+
+  # Identity for Azure Container Apps accessing application resources / Key Vault
+  container_apps = {
+    name   = "mi-container-apps-prod"
+    create = true
   }
 }
+
+
+# ============================================================================
+# FEDERATED IDENTITY CREDENTIALS
+# ============================================================================
+
+federated_identity_credentials = {}
+
+# ============================================================================
+# ROLE ASSIGNMENTS
+# ============================================================================
+
+role_assignments = {}

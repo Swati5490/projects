@@ -1,0 +1,57 @@
+replicaCount: 1
+
+image:
+  # AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: rewn-admin
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: rewn-admin
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS Task CPU = 256 units (~0.25 vCPU)
+    # ECS Task Memory = 256 MiB
+    cpu: 250m
+    memory: 256Mi
+
+  limits:
+    # Actual utilization dekhkar limits tune karni hain
+    cpu: 500m
+    memory: 512Mi
+
+# ECS task definition me koi environment variable configured nahi hai
+env: {}
+
+# Currently koi application secret ECS task definition me defined nahi hai
+# Future me sensitive configuration Azure Key Vault se inject hogi
+keyVault:
+  enabled: true
+
+  secrets: []
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+# Admin application external access require karti hai ya nahi,
+# ye ingress/load balancer configuration se confirm karna hoga
+ingress:
+  enabled: false
+
+  # className: ""
+
+  # hosts:
+  #   - host: "admin.dev.rewn.io"
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix

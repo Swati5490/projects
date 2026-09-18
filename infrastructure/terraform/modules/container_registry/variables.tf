@@ -124,19 +124,19 @@ variable "webhooks" {
 variable "tasks" {
   description = "Map of ACR tasks for automated builds"
   type = map(object({
-    name                       = string
-    enabled                    = optional(bool, true)
-    is_system_task            = optional(bool, false)
-    image_names               = list(string)
-    dockerfile_path           = string
-    context_access_token      = string
-    context_path              = string
-    push_enabled              = optional(bool, true)
-    cache_enabled             = optional(bool, true)
-    platform_os               = optional(string, "Linux")
-    platform_architecture     = optional(string, "amd64")
-    timer_trigger_enabled     = optional(bool, false)
-    timer_trigger_schedule    = optional(string, "")
+    name                   = string
+    enabled                = optional(bool, true)
+    is_system_task         = optional(bool, false)
+    image_names            = list(string)
+    dockerfile_path        = string
+    context_access_token   = string
+    context_path           = string
+    push_enabled           = optional(bool, true)
+    cache_enabled          = optional(bool, true)
+    platform_os            = optional(string, "Linux")
+    platform_architecture  = optional(string, "amd64")
+    timer_trigger_enabled  = optional(bool, false)
+    timer_trigger_schedule = optional(string, "")
   }))
   default = {}
 }
@@ -145,6 +145,12 @@ variable "aks_principal_id" {
   description = "Principal ID of AKS cluster for ACR pull access"
   type        = string
   default     = null
+}
+
+variable "role_assignment_name" {
+  description = "Stable name for the AKS AcrPull role assignment"
+  type        = string
+  default     = "aks-acr-pull-role"
 }
 
 variable "environment" {

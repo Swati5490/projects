@@ -1,0 +1,208 @@
+# =====================================================
+# DEAL NEGOTIATOR API - PRODUCTION
+# AKS / Azure Helm Values
+#
+# Source ECS Task Definition:
+# deal-negotiator-api--production:25
+# Container:
+# deal-negotiator-api
+# =====================================================
+
+nameOverride: deal-negotiator-api
+fullnameOverride: deal-negotiator-api--production
+
+replicaCount: 1
+# TODO: Confirm actual ECS Service desiredCount.
+
+
+# =====================================================
+# IMAGE
+# Same application/image name: deal-negotiator-api
+# =====================================================
+
+image:
+  # TODO: Migrate image from AWS ECR to Azure Container Registry
+  repository: <acr-name>.azurecr.io/deal-negotiator-api
+  tag: production
+  pullPolicy: Always
+
+
+# =====================================================
+# CONTAINER
+# =====================================================
+
+container:
+  name: deal-negotiator-api
+  port: 8080
+
+
+# =====================================================
+# SERVICE
+#
+# ECS:
+# containerPort: 8080
+# hostPort: 80
+#
+# AKS:
+# Service exposes port 80 and forwards to container 8080
+# =====================================================
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+
+# =====================================================
+# RESOURCES
+# ECS Task:
+# CPU    : 256
+# Memory : 256 MiB
+# =====================================================
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 256Mi
+
+  limits:
+    # TODO: Validate after migration using Azure Monitor
+    cpu: 512m
+    memory: 512Mi
+
+
+# =====================================================
+# NON-SENSITIVE ENVIRONMENT VARIABLES
+# =====================================================
+
+env:
+  DATA_API_URL: "https://datafeed.rewn.io/v2"
+
+  # Dependency:
+  # deal-negotiator-api --> Redis
+  #
+  # TODO: Update after Redis migration to Azure/AKS.
+  REDIS_HOST: "redis.rewn-state"
+  REDIS_PORT: "43768"
+
+  # Dependency:
+  # deal-negotiator-api --> MongoDB
+  #
+  # TODO: Update after MongoDB migration.
+  DB_HOST: "mongo.rewn-state"
+  DB_PORT: "37451"
+  DB_USERNAME: "mongo_admin"
+
+  # Dependency:
+  # deal-negotiator-api --> MySQL API
+  MYSQL_API_URL: "https://mysql.rewn.io/v1"
+
+  NODE_ENV: production
+
+  # Dependency:
+  # deal-negotiator-api --> Authentication/JWKS service
+  JWKS_ENDPOINT: "https://auth.rewn.io/oidc/jwks"
+
+  APP_DOMAIN: "https://deal-negotiator.rewn.io"
+
+
+# =====================================================
+# SECRETS
+# Azure Key Vault + Secrets Store CSI Driver
+# =====================================================
+
+keyVault:
+  enabled: true
+
+  # TODO: Replace with actual Azure Key Vault name
+  name: <keyvault-name>
+
+  secrets:
+    - mailgun-key
+    - redis-password
+    - db-password
+
+
+# =====================================================
+# SERVICE DEPENDENCY MAPPING
+# =====================================================
+
+# deal-negotiator-api
+#
+#   ├──> DATA API
+#   │     https://datafeed.rewn.io/v2
+#   │
+#   ├──> Redis
+#   │     redis.rewn-state:43768
+#   │
+#   ├──> MongoDB
+#   │     mongo.rewn-state:37451
+#   │     Username: mongo_admin
+#   │     Password: Azure Key Vault
+#   │
+#   ├──> MySQL API
+#   │     https://mysql.rewn.io/v1
+#   │
+#   └──> Authentication / JWKS
+#         https://auth.rewn.io/oidc/jwks
+
+
+# =====================================================
+# STORAGE
+# No ECS EFS volume or mountPoint exists.
+# =====================================================
+
+storage:
+  enabled: false
+
+
+# =====================================================
+# LOGGING
+#
+# ECS Source:
+# /ecs/deal-negotiator-api--production
+#
+# Azure Target:
+# Azure Monitor + Log Analytics
+# =====================================================
+
+logging:
+  enabled: true
+  provider: azureMonitor
+
+
+# =====================================================
+# INGRESS
+# =====================================================
+
+ingress:
+  enabled: true
+
+  # TODO: Update according to final ingress architecture
+  className: nginx
+
+  hosts:
+    - host: deal-negotiator.rewn.io
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls:
+    enabled: true
+
+    # TODO: Integrate certificate with Azure Key Vault
+    secretName: deal-negotiator-api-production-tls
+
+
+# =====================================================
+# AUTOSCALING
+# =====================================================
+
+autoscaling:
+  enabled: false
+
+  minReplicas: 1
+  maxReplicas: 5
+
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

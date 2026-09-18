@@ -1,0 +1,50 @@
+name: openrei-prod
+
+type: Microsoft.App/containerApps
+
+location: centralindia
+
+properties:
+  managedEnvironmentId: <ACA_ENVIRONMENT_ID>
+
+  configuration:
+    ingress:
+      external: true
+      targetPort: 8080
+      transport: auto
+
+    registries:
+      - server: <ACR_NAME>.azurecr.io
+        identity: system
+
+  template:
+    containers:
+      - name: openrei
+        image: <ACR_NAME>.azurecr.io/openrei:production
+
+        resources:
+          cpu: 0.125
+          memory: 0.5Gi
+
+        probes:
+          - type: Liveness
+            httpGet:
+              path: /health-check
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          - type: Readiness
+            httpGet:
+              path: /health-check
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+    scale:
+      minReplicas: 1
+      maxReplicas: 3

@@ -1,0 +1,74 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: phone-api
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: phone-api
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS task CPU: 256
+    cpu: 256m
+    memory: 512Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage Azure Monitor se analyze karke tune karna hai
+    cpu: 256m
+    memory: 512Mi
+
+env:
+  NODE_ENV: production
+
+  # Redis connectivity
+  # TODO: AKS migration ke baad hostname Azure Cache for Redis /
+  # internal Redis service ke according update hoga
+  REDIS_HOST: redis.rewn-state
+  REDIS_PORT: "43768"
+
+  # MongoDB connectivity
+  # TODO: AKS migration ke baad MongoDB cluster DNS names validate/update karein
+  DB_HOSTS: "mongorep1.rewn-state:37451,mongorep2.rewn-state:37451,mongorep3.rewn-state:37451"
+  DB_USERNAME: mongo_admin
+
+  # Elasticsearch connectivity
+  # TODO: AWS EC2 internal Elasticsearch endpoints Azure migration ke baad change honge
+  ES_HOSTS: '["http://ip-172-31-19-160.ec2.internal:9200/","http://ip-172-31-23-185.ec2.internal:9200/","http://ip-172-31-16-174.ec2.internal:9200/","http://ip-172-31-31-165.ec2.internal:9200/","http://ip-172-31-28-51.ec2.internal:9200/"]'
+
+  # Service-to-service communication
+  ACCOUNT_API_URL: "https://account.rewn.io/v1"
+
+  # Authentication
+  JWKS_ENDPOINT: "https://auth.rewn.io/oidc/jwks"
+
+# Sensitive values Azure Key Vault se
+# Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    - MAILGUN_KEY
+    - REDIS_PASSWORD
+    - DB_PASSWORD
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+
+  # TODO: Check karna hai kya phone-api ko external access chahiye.
+  # Agar sirf other microservices call karte hain,
+  # to ClusterIP service sufficient hai.

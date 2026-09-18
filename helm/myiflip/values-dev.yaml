@@ -1,0 +1,75 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: myiflip
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: myiflip
+  port: 80
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 512Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage dekhkar limits tune karni hain
+    cpu: 256m
+    memory: 512Mi
+
+env:
+  CIRCLE_BRANCH: develop
+
+  # TODO: AWS-specific variables hain.
+  # Check application source code whether these are still required after Azure migration.
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: "770526846351"
+
+  AWS_RESOURCE_NAME_PREFIX: myiflip
+  SITE_DOMAIN: myiflip.dev.rewn.io
+
+# Sensitive values values.yaml me store nahi honge.
+# Azure Key Vault + Secrets Store CSI Driver se inject honge.
+keyVault:
+  enabled: true
+
+  secrets:
+    # TODO: Check whether application runtime me AWS credentials ki actual requirement hai.
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - NPM_TOKEN
+
+storage:
+  enabled: true
+
+  # AWS EFS ko Azure Files / Azure Blob Storage ke appropriate equivalent se replace karna hoga.
+  # Current application mount path preserve kiya gaya hai.
+  type: azureFile
+
+  mountPath: /web/app/user-files
+
+  # TODO: Azure Storage Account/File Share details add karni hain.
+  # storageAccountName: ""
+  # fileShareName: ""
+
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent AKS cluster level par configured hoga
+
+ingress:
+  enabled: true
+
+  # TODO: Final ingress controller architecture confirm karna hai
+  # e.g. Application Gateway for Containers / NGINX Ingress
+  host: myiflip.dev.rewn.io
+
+  path: /
+  pathType: Prefix

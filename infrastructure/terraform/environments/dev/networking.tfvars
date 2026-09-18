@@ -1,182 +1,384 @@
-# Development Networking Configuration
-# Virtual Networks, Subnets, and Network Security Groups
-# Usage: terraform plan -var-file="environments/dev/_globals.tfvars" -var-file="environments/dev/networking.tfvars"
+# ============================================================================
+# DEV SPOKE NETWORKING
+# ============================================================================
 
-# ============================================================================
-# VIRTUAL NETWORKS - Development (Count: 1 spoke VNet)
-# Hub VNet is shared and created in Prod environment
-# ============================================================================
 vnets = {
-  dev = {
-    name          = "vnet-spoke-rewn-dev-cin"
+  vnet_spoke_dev = {
+    name               = "vnet-spoke-rewn-dev"
+    resource_group_key = "rg_network"
+
     address_space = ["10.30.0.0/16"]
-    environment   = "dev"
-    dns_servers   = []
+
+    role        = "spoke"
+    dns_servers = []
+    create      = true
   }
 }
 
-# ============================================================================
-# VNET PEERING - Hub (Prod) to Dev Spoke (Bidirectional)
-# ============================================================================
-vnet_peerings = {
-  hub_to_dev = {
-    name                             = "peer-hub-dev"
-    source_vnet_name                 = "vnet-hub-rewn-prod-cin"
-    source_vnet_rg                   = "rg-network-rewn-prod-cin"
-    destination_vnet_name            = "vnet-spoke-rewn-dev-cin"
-    destination_vnet_rg              = "rg-network-rewn-dev-cin"
-    allow_virtual_network_access     = true
-    allow_forwarded_traffic          = true
-    allow_gateway_transit            = true
-    use_remote_gateways              = false
-  }
-  dev_to_hub = {
-    name                             = "peer-dev-hub"
-    source_vnet_name                 = "vnet-spoke-rewn-dev-cin"
-    source_vnet_rg                   = "rg-network-rewn-dev-cin"
-    destination_vnet_name            = "vnet-hub-rewn-prod-cin"
-    destination_vnet_rg              = "rg-network-rewn-prod-cin"
-    allow_virtual_network_access     = true
-    allow_forwarded_traffic          = true
-    allow_gateway_transit            = false
-    use_remote_gateways              = true
-  }
-}
 
 # ============================================================================
-# SUBNETS - Development (Count: 4 subnets)
+# DEV SUBNETS
 # ============================================================================
+
 subnets = {
-  aks = {
-    name                = "snet-aks-dev-cin"
-    vnet_name           = "dev"
-    address_prefixes    = ["10.30.0.0/22"]
-    service_endpoints   = ["Microsoft.Storage"]
-    nsg_association     = "aks"
+
+  snet_database = {
+    name               = "snet-db-dev"
+    resource_group_key = "rg_network"
+    vnet_key           = "vnet_spoke_dev"
+
+    address_prefixes = ["10.30.16.0/22"]
+
+    service_endpoints = ["Microsoft.Sql"]
+
+    private_endpoint_network_policies = "Disabled"
+    delegation                        = []
+    create                            = true
   }
-  databases = {
-    name                = "snet-db-dev-cin"
-    vnet_name           = "dev"
-    address_prefixes    = ["10.30.4.0/24"]
-    service_endpoints   = []
-    nsg_association     = "databases"
+
+
+  snet_storage = {
+    name               = "snet-storage-dev"
+    resource_group_key = "rg_network"
+    vnet_key           = "vnet_spoke_dev"
+
+    address_prefixes = ["10.30.20.0/22"]
+
+    service_endpoints = ["Microsoft.Storage"]
+
+    private_endpoint_network_policies = "Disabled"
+    delegation                        = []
+    create                            = true
   }
-  storage = {
-    name                = "snet-storage-dev-cin"
-    vnet_name           = "dev"
-    address_prefixes    = ["10.30.5.0/24"]
-    service_endpoints   = ["Microsoft.Storage"]
-    nsg_association     = "storage"
+
+
+  snet_pe = {
+    name               = "snet-pe-dev"
+    resource_group_key = "rg_network"
+    vnet_key           = "vnet_spoke_dev"
+
+    address_prefixes = ["10.30.24.0/24"]
+
+    service_endpoints = []
+
+    private_endpoint_network_policies = "Disabled"
+    delegation                        = []
+    create                            = true
   }
-  pe = {
-    name                = "snet-pe-dev-cin"
-    vnet_name           = "dev"
-    address_prefixes    = ["10.30.6.0/24"]
-    service_endpoints   = []
-    nsg_association     = null
+
+
+  snet_app = {
+    name               = "snet-app-dev"
+    resource_group_key = "rg_network"
+    vnet_key           = "vnet_spoke_dev"
+
+  # Dedicated subnet for Azure Container Apps Environment
+    address_prefixes = ["10.30.0.0/20"]
+
+    service_endpoints = []
+
+    private_endpoint_network_policies = "Disabled"
+
+    delegation = [
+      {
+        name = "delegation-containerapps"
+
+        service_delegation = {
+        name = "Microsoft.App/environments"
+
+        actions = [
+          "Microsoft.Network/virtualNetworks/subnets/action"
+        ]
+      }
+    }
+  ]
+
+  create = true
+  }
+
+
+  snet_data_vm = {
+    name               = "snet-data-vm-dev"
+    resource_group_key = "rg_network"
+    vnet_key           = "vnet_spoke_dev"
+
+    address_prefixes = ["10.30.26.0/23"]
+
+    service_endpoints = []
+
+    private_endpoint_network_policies = "Disabled"
+    delegation                        = []
+    create                            = true
   }
 }
 
+
 # ============================================================================
-# NETWORK SECURITY GROUPS - Development (Count: 3)
+# NSGs
 # ============================================================================
+
 network_security_groups = {
-  aks = {
-    name                = "nsg-aks-dev-cin"
-    priority            = 100
-    direction           = "Inbound"
-    access              = "Allow"
-    protocol            = "Tcp"
-    source_port_range   = "*"
-    dest_port_range     = "6443"
-    source_address      = ["10.10.0.0/16", "10.30.0.0/16"]
-    destination_address = ["10.30.0.0/22"]
+
+  nsg_database = {
+    name               = "nsg-db-dev"
+    resource_group_key = "rg_network"
+    create             = true
   }
-  databases = {
-    name                = "nsg-db-dev-cin"
-    priority            = 100
-    direction           = "Inbound"
-    access              = "Allow"
-    protocol            = "Tcp"
-    source_port_range   = "*"
-    dest_port_range     = "3306,27017,6379"
-    source_address      = ["10.30.0.0/22"]
-    destination_address = ["10.30.4.0/24"]
+
+  nsg_storage = {
+    name               = "nsg-storage-dev"
+    resource_group_key = "rg_network"
+    create             = true
   }
-  storage = {
-    name                = "nsg-storage-dev-cin"
-    priority            = 100
-    direction           = "Inbound"
-    access              = "Allow"
-    protocol            = "Tcp"
-    source_port_range   = "*"
-    dest_port_range     = "443"
-    source_address      = ["10.30.0.0/16", "10.10.0.0/16"]
-    destination_address = ["10.30.5.0/24"]
+
+  nsg_pe = {
+    name               = "nsg-pe-dev"
+    resource_group_key = "rg_network"
+    create             = true
+  }
+
+  nsg_app = {
+    name               = "nsg-app-dev"
+    resource_group_key = "rg_network"
+    create             = true
+  }
+
+  nsg_data_vm = {
+    name               = "nsg-data-vm-dev"
+    resource_group_key = "rg_network"
+    create             = true
   }
 }
 
+
 # ============================================================================
-# ROUTE TABLES - Development (For outbound traffic via NAT)
+# NSG → SUBNET ASSOCIATIONS
 # ============================================================================
+
+nsg_subnet_associations = {
+
+  database_nsg_subnet = {
+    subnet_key = "snet_database"
+    nsg_key    = "nsg_database"
+    create     = true
+  }
+
+  storage_nsg_subnet = {
+    subnet_key = "snet_storage"
+    nsg_key    = "nsg_storage"
+    create     = true
+  }
+
+  pe_nsg_subnet = {
+    subnet_key = "snet_pe"
+    nsg_key    = "nsg_pe"
+    create     = true
+  }
+
+  app_nsg_subnet = {
+    subnet_key = "snet_app"
+    nsg_key    = "nsg_app"
+    create     = true
+  }
+
+  data_vm_nsg_subnet = {
+    subnet_key = "snet_data_vm"
+    nsg_key    = "nsg_data_vm"
+    create     = true
+  }
+}
+
+
+# ============================================================================
+# ROUTE TABLES
+# ============================================================================
+
 route_tables = {
-  dev = {
-    name                               = "rt-dev-cin"
-    disable_bgp_route_propagation      = false
+
+  rt_database = {
+    name                          = "rt-database-dev"
+    resource_group_key            = "rg_network"
+    bgp_route_propagation_enabled = true
+    create                        = true
+  }
+
+  rt_storage = {
+    name                          = "rt-storage-dev"
+    resource_group_key            = "rg_network"
+    bgp_route_propagation_enabled = true
+    create                        = true
+  }
+
+  rt_pe = {
+    name                          = "rt-pe-dev"
+    resource_group_key            = "rg_network"
+    bgp_route_propagation_enabled = true
+    create                        = true
+  }
+
+  rt_app = {
+    name                          = "rt-app-dev"
+    resource_group_key            = "rg_network"
+    bgp_route_propagation_enabled = true
+    create                        = true
+  }
+
+  rt_data_vm = {
+    name                          = "rt-data-vm-dev"
+    resource_group_key            = "rg_network"
+    bgp_route_propagation_enabled = true
+    create                        = true
   }
 }
 
+routes = {}
+
+
 # ============================================================================
-# ROUTES - To NAT Gateway for outbound internet access
+# ROUTE TABLE → SUBNET ASSOCIATIONS
 # ============================================================================
-routes = {
-  to_nat = {
-    name                   = "route-to-nat-dev"
-    route_table_name       = "dev"
-    address_prefix         = "0.0.0.0/0"
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = null
+
+route_table_subnet_associations = {
+
+  database_rt_subnet = {
+    subnet_key      = "snet_database"
+    route_table_key = "rt_database"
+    create          = true
+  }
+
+  storage_rt_subnet = {
+    subnet_key      = "snet_storage"
+    route_table_key = "rt_storage"
+    create          = true
+  }
+
+  pe_rt_subnet = {
+    subnet_key      = "snet_pe"
+    route_table_key = "rt_pe"
+    create          = true
+  }
+
+  app_rt_subnet = {
+    subnet_key      = "snet_app"
+    route_table_key = "rt_app"
+    create          = true
+  }
+
+  data_vm_rt_subnet = {
+    subnet_key      = "snet_data_vm"
+    route_table_key = "rt_data_vm"
+    create          = true
   }
 }
 
-# ============================================================================
-# NAT GATEWAY - Development (For secure outbound internet access)
-# ============================================================================
-nat_gateways = {
-  dev = {
-    name           = "nat-dev-cin"
-    public_ip_name = "nat_dev"
-    idle_timeout   = 4
-    zones          = []
-  }
-}
 
 # ============================================================================
-# PUBLIC IPs - For NAT Gateway
+# NAT GATEWAY - DISABLED
 # ============================================================================
+
 public_ips = {
-  nat_dev = {
-    name                = "pip-nat-dev-cin"
-    allocation_method   = "Static"
-    sku                 = "Standard"
-    zones               = []
+  pip_nat_dev = {
+    name               = "pip-natgw-dev"
+    resource_group_key = "rg_network"
+    create             = false
   }
 }
 
-# ============================================================================
-# SUBNET ROUTE TABLE ASSOCIATIONS - Associate subnets with NAT route table
-# ============================================================================
-subnet_route_table_associations = {
-  aks_to_nat = {
-    subnet_name      = "snet-aks-dev-cin"
-    route_table_name = "rt-dev-cin"
+nat_gateways = {
+  natgw_dev = {
+    name               = "natgw-rewn-dev"
+    resource_group_key = "rg_network"
+
+    vnet_key      = "vnet_spoke_dev"
+    public_ip_key = "pip_nat_dev"
+
+    sku_name                = "Standard"
+    idle_timeout_in_minutes = 10
+    create                  = false
   }
-  databases_to_nat = {
-    subnet_name      = "snet-db-dev-cin"
-    route_table_name = "rt-dev-cin"
+}
+
+nat_gateway_subnet_associations = {}
+
+
+# ============================================================================
+# VNET PEERING
+# ============================================================================
+
+vnet_peerings = {
+
+  spoke_dev_hub = {
+
+    spoke_vnet_key = "vnet_spoke_dev"
+    hub_vnet_key   = "vnet_hub"
+
+    spoke_to_hub_peering_name = "peer-spoke-dev-to-hub"
+    hub_to_spoke_peering_name = "peer-hub-to-spoke-dev"
+
+    allow_virtual_network_access = true
+    allow_forwarded_traffic      = true
+
+    # SPOKE → HUB
+    spoke_to_hub_allow_gateway_transit = false
+    spoke_to_hub_use_remote_gateways   = true
+
+    # HUB → SPOKE
+    hub_to_spoke_allow_gateway_transit = true
+    hub_to_spoke_use_remote_gateways   = false
+
+    create = true
   }
-  storage_to_nat = {
-    subnet_name      = "snet-storage-dev-cin"
-    route_table_name = "rt-dev-cin"
+}
+
+
+bastions = {}
+
+private_dns_zones = {}
+
+
+# ============================================================================
+# PRIVATE DNS ZONE → DEV VNET LINKS
+# ============================================================================
+
+private_dns_zone_links = {
+
+  mysql_spoke = {
+    name                 = "link-mysql-dev"
+    resource_group_key   = "rg_network"
+    private_dns_zone_key = "dns_mysql"
+    vnet_key             = "vnet_spoke_dev"
+
+    registration_enabled = false
+    create               = true
+  }
+
+  storage_spoke = {
+    name                 = "link-storage-dev"
+    resource_group_key   = "rg_network"
+    private_dns_zone_key = "dns_storage"
+    vnet_key             = "vnet_spoke_dev"
+
+    registration_enabled = false
+    create               = true
+  }
+
+  redis_spoke = {
+    name                 = "link-redis-dev"
+    resource_group_key   = "rg_network"
+    private_dns_zone_key = "dns_redis"
+    vnet_key             = "vnet_spoke_dev"
+
+    registration_enabled = false
+    create               = true
+  }
+
+  cosmos_dns_link = {
+    name                 = "link-cosmos-dev"
+    resource_group_key   = "rg_network"
+    private_dns_zone_key = "dns_cosmos"
+    vnet_key             = "vnet_spoke_dev"
+
+    registration_enabled = false
+    create               = true
   }
 }

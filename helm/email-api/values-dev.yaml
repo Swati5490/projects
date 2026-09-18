@@ -1,0 +1,55 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: email-api
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: email-api
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 256Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage dekhkar limits tune karni hain
+    cpu: 256m
+    memory: 256Mi
+
+env:
+  NODE_ENV: development
+  LOGGING_LEVEL: debug
+
+  # Service-to-service communication
+  REDIS_HOST: redis--develop.rewn-develop-state
+  REDIS_PORT: "6379"
+
+  JWKS_ENDPOINT: "https://auth.dev.rewn.io/oidc/jwks"
+  AUTH_API_URL: "http://auth.dev.rewn.io"
+
+# Sensitive values Azure Key Vault se Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    - MAILGUN_APP_KEY
+    - MAILGUN_APP_TOKEN
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+  # TODO: Check karna hai kya email-api ko externally expose karna hai.
+  # Agar sirf internal microservice hai to ClusterIP sufficient hai.

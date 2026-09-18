@@ -37,3 +37,8 @@ output "identity" {
   description = "The identity of the AKS cluster"
   value       = azurerm_kubernetes_cluster.main.identity[0].principal_id
 }
+
+output "kubelet_identity_principal_id" {
+  description = "The principal ID used by the AKS kubelet identity"
+  value       = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
+}

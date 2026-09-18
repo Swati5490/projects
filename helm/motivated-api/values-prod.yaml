@@ -1,0 +1,72 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: motivated-api
+  tag: production
+  pullPolicy: Always
+
+container:
+  name: motivated-api
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 512Mi
+
+  limits:
+    # TODO: Actual CPU/Memory usage dekhkar limits tune karni hain
+    cpu: 256m
+    memory: 512Mi
+
+env:
+  NODE_ENV: production
+  LOGGING_LEVEL: debug
+
+  # Service-to-service communication
+  DATA_API_URL: "https://datafeed.rewn.io/v2"
+  ACCOUNT_API_URL: "https://account.rewn.io/v1"
+  AUTH_API_URL: "https://auth.rewn.io"
+  MYSQL_API_URL: "https://mysql.rewn.io/v1"
+  SCI_NET_URL: "https://scinet.rewn.io/v1"
+  JWKS_ENDPOINT: "https://auth.rewn.io/oidc/jwks"
+
+  # Redis dependency
+  REDIS_HOST: redis.rewn-state
+  REDIS_PORT: "43768"
+
+  # MongoDB dependency - Replica Set
+  DB_HOSTS: "mongorep1.rewn-state:37451,mongorep2.rewn-state:37451,mongorep3.rewn-state:37451"
+  DB_USERNAME: mongo_admin
+
+  # External AI/Ollama service
+  OLLAMA_HOST: "http://44.216.218.53:8080"
+
+  # Mail service configuration
+  MAILGUN_DOMAIN: mg.rewn.com
+
+# Sensitive values Azure Key Vault se Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    - MAILGUN_KEY
+    - OLLAMA_API_KEY
+    - REDIS_PASSWORD
+    - DB_PASSWORD
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+  # TODO: Check karna hai kya motivated-api ko externally expose karna hai.
+  # Agar sirf internal microservice hai to ClusterIP sufficient hai.

@@ -7,13 +7,13 @@
 # ============================================================================
 front_doors = {
   main = {
-    name              = "fd-rewn"
-    sku_name          = "Standard_AzureFrontDoor"
-    enforce_https     = true
+    name                   = "fd-rewn"
+    sku_name               = "Standard_AzureFrontDoor"
+    enforce_https          = true
     http_to_https_redirect = true
-    enable_waf        = true
-    waf_policy_mode   = "Detection"
-    
+    enable_waf             = true
+    waf_policy_mode        = "Prevention"
+    network_plugin         = "azure"
     backend_pools = {
       prodpool = {
         name                = "prod-backend-pool"
@@ -21,7 +21,7 @@ front_doors = {
         load_balancing_name = "prod-lb"
         backends = [
           {
-            address = "appgw-rewn-cin.azureedge.net"
+            address = "appgw-rewn.azureedge.net"
             port    = 443
           }
         ]
@@ -32,13 +32,13 @@ front_doors = {
         load_balancing_name = "dev-lb"
         backends = [
           {
-            address = "appgw-rewn-cin.azureedge.net"
+            address = "appgw-rewn.azureedge.net"
             port    = 443
           }
         ]
       }
     }
-    
+
     frontend_endpoints = {
       prod_endpoint = {
         host_name = "prod.rewn.io"
@@ -50,7 +50,7 @@ front_doors = {
         host_name = "cdn.rewn.io"
       }
     }
-    
+
     routing_rules = {
       prod-route = {
         frontend_endpoint_name = "prod_endpoint"

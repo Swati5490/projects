@@ -1,73 +1,10 @@
-# Storage Module - variables.tf
+# ============================================================================
+# GENERAL
+# ============================================================================
 
-variable "storage_account_name" {
-  description = "Name of the storage account"
+variable "project_name" {
+  description = "Project name"
   type        = string
-  default     = null
-}
-
-variable "container_name" {
-  description = "Name of the blob container"
-  type        = string
-  default     = null
-}
-
-variable "resource_group_name" {
-  description = "Name of the resource group"
-  type        = string
-}
-
-variable "location" {
-  description = "Azure location"
-  type        = string
-}
-
-variable "account_tier" {
-  description = "Storage account tier (Standard, Premium)"
-  type        = string
-  default     = "Standard"
-}
-
-variable "account_replication_type" {
-  description = "Replication type (LRS, GRS, RAGRS, ZRS)"
-  type        = string
-  default     = "GRS"
-}
-
-variable "access_tier" {
-  description = "Access tier (Hot, Cool, Archive)"
-  type        = string
-  default     = "Hot"
-}
-
-variable "https_traffic_only_enabled" {
-  description = "Only allow HTTPS traffic"
-  type        = bool
-  default     = true
-}
-
-variable "min_tls_version" {
-  description = "Minimum TLS version"
-  type        = string
-  default     = "TLS1_2"
-}
-
-variable "blob_delete_retention" {
-  description = "Blob soft delete retention days"
-  type        = number
-  default     = 7
-}
-
-variable "versioning_enabled" {
-  description = "Enable blob versioning"
-  type        = bool
-  default     = true
-}
-
-variable "container_access_type" {
-  description = "Container access type (private, blob, container)"
-  type        = string
-  default     = "private"
 }
 
 variable "environment" {
@@ -75,25 +12,147 @@ variable "environment" {
   type        = string
 }
 
-variable "project_name" {
-  description = "Project name"
+variable "location" {
+  description = "Azure region"
+  type        = string
+}
+
+variable "resource_group_name" {
+  description = "Resource Group name"
   type        = string
 }
 
 variable "tags" {
-  description = "Tags to apply"
+  description = "Tags for resources"
   type        = map(string)
   default     = {}
 }
 
+
+# ============================================================================
+# CREATION FLAGS
+# ============================================================================
+
+variable "create_storage_account" {
+  type    = bool
+  default = false
+}
+
+variable "create_container" {
+  type    = bool
+  default = false
+}
+
+variable "create_file_share" {
+  type    = bool
+  default = false
+}
+
+variable "create_private_endpoint" {
+  type    = bool
+  default = false
+}
+
+
+# ============================================================================
+# STORAGE ACCOUNT
+# ============================================================================
+
+variable "storage_account_name" {
+  type    = string
+  default = null
+}
+
+variable "account_tier" {
+  type    = string
+  default = "Standard"
+}
+
+variable "account_replication_type" {
+  type    = string
+  default = "LRS"
+}
+
+variable "access_tier" {
+  type    = string
+  default = "Hot"
+}
+
+variable "https_traffic_only_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "public_network_access_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "allow_nested_items_to_be_public" {
+  type    = bool
+  default = false
+}
+
+variable "min_tls_version" {
+  type    = string
+  default = "TLS1_2"
+}
+
+
+# ============================================================================
+# BLOB CONTAINER
+# ============================================================================
+
+variable "container_name" {
+  type    = string
+  default = null
+}
+
+variable "container_access_type" {
+  type    = string
+  default = "private"
+}
+
+
+# ============================================================================
+# AZURE FILE SHARE
+# ============================================================================
+
 variable "share_name" {
-  description = "Name of the Azure file share"
-  type        = string
-  default     = null
+  type    = string
+  default = null
 }
 
 variable "share_quota" {
-  description = "Quota for Azure file share in GB"
-  type        = number
-  default     = 100
+  type    = number
+  default = null
+}
+
+
+# ============================================================================
+# PRIVATE ENDPOINT
+# ============================================================================
+
+variable "private_endpoint_name" {
+  type    = string
+  default = null
+}
+
+variable "private_endpoint_subnet_id" {
+  type    = string
+  default = null
+}
+
+variable "private_endpoint_subresource_names" {
+  type    = list(string)
+  default = []
+}
+# ============================================================================
+# RBAC
+# ============================================================================
+
+variable "assign_blob_data_reader" {
+  description = "Whether to assign Storage Blob Data Reader role"
+  type        = bool
+  default     = false
 }

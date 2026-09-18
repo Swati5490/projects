@@ -1,0 +1,79 @@
+replicaCount: 1
+
+image:
+  # AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: rewn-chat
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: rewn-chat
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS CPU = 128 units (~0.125 vCPU)
+    # ECS Memory Reservation = 8 MiB
+    cpu: 125m
+    memory: 8Mi
+
+  limits:
+    # Actual utilization dekhkar limits tune karni hain
+    cpu: 250m
+    memory: 128Mi
+
+# ECS task definition me koi environment variable configured nahi hai
+env: {}
+
+# ECS task definition me koi sensitive secret configured nahi hai
+keyVault:
+  enabled: false
+
+  secrets: []
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+# ECS health check ko Kubernetes probes me convert kiya gaya hai
+healthCheck:
+  enabled: true
+
+  livenessProbe:
+    httpGet:
+      path: /health-check
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health-check
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# Development environment ke liye currently ingress disabled
+ingress:
+  enabled: false
+
+  className: ""
+
+  # Agar externally expose karna ho:
+  #
+  # hosts:
+  #   - host: "chat.dev.rewn.io"
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix

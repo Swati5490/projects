@@ -1,0 +1,75 @@
+replicaCount: 1
+
+# ============================================================
+# Container Image
+# ============================================================
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: rewn-dialer
+  tag: production
+  pullPolicy: Always
+
+# ============================================================
+# Container Configuration
+# ============================================================
+container:
+  name: rewn-dialer
+  port: 8080
+
+# ============================================================
+# Kubernetes Service
+# ============================================================
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+# ============================================================
+# Resource Configuration
+# ============================================================
+resources:
+  requests:
+    # ECS task CPU = 128 units (~0.125 vCPU)
+    cpu: 125m
+
+    # ECS memory reservation = 8 MiB
+    memory: 8Mi
+
+  limits:
+    # TODO: Actual CPU/Memory utilization dekhkar limits tune karni hain
+    cpu: 250m
+    memory: 128Mi
+
+# ============================================================
+# Non-Sensitive Environment Variables
+# ============================================================
+env: {}
+
+# ============================================================
+# Azure Key Vault Secrets
+# ============================================================
+# ECS task definition me koi secrets defined nahi hain.
+keyVault:
+  enabled: false
+  secrets: []
+
+# ============================================================
+# Azure Monitoring
+# ============================================================
+azureMonitor:
+  enabled: true
+
+  # Container Insights / Azure Monitor Agent AKS cluster level
+  # par configured hoga.
+
+# ============================================================
+# Ingress Configuration
+# ============================================================
+ingress:
+  enabled: false
+
+  # ECS task definition me load balancer ya public exposure
+  # ki information available nahi hai.
+  #
+  # Agar service sirf internal microservices ke liye hai,
+  # to ClusterIP sufficient hai.

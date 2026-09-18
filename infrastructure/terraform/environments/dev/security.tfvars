@@ -7,11 +7,11 @@
 # ============================================================================
 key_vaults = {
   dev = {
-    name                            = "kv-rewn-dev-cin"
-    sku                             = "standard"
-    purge_protection_enabled        = false
-    soft_delete_retention_days      = 7
-    enable_rbac_authorization       = true
+    name                       = "kv-rewn-dev"
+    sku                        = "standard"
+    purge_protection_enabled   = false
+    soft_delete_retention_days = 7
+    enable_rbac_authorization  = true
   }
 }
 

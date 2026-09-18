@@ -1,0 +1,187 @@
+# =====================================================
+# DEAL NEGOTIATOR API - DEVELOPMENT
+# AKS / Azure Helm Values
+#
+# Source ECS Task Definition:
+# deal-negotiator-api--develop:16
+# Container:
+# deal-negotiator-api
+# =====================================================
+
+nameOverride: deal-negotiator-api
+fullnameOverride: deal-negotiator-api--develop
+
+replicaCount: 1
+# TODO: Confirm ECS Service desiredCount for develop environment.
+
+
+# =====================================================
+# IMAGE
+# =====================================================
+
+image:
+  # Same application/image name as ECS: deal-negotiator-api
+  # TODO: Copy image from AWS ECR to Azure Container Registry.
+  repository: <acr-name>.azurecr.io/deal-negotiator-api
+  tag: develop
+  pullPolicy: Always
+
+
+# =====================================================
+# CONTAINER
+# =====================================================
+
+container:
+  name: deal-negotiator-api
+  port: 8080
+
+
+# =====================================================
+# KUBERNETES SERVICE
+# ECS:
+# containerPort: 8080
+# hostPort: 0 (dynamic)
+#
+# AKS:
+# ClusterIP Service routes traffic to container port 8080.
+# =====================================================
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+
+# =====================================================
+# RESOURCES
+# ECS Task:
+# CPU    : 256
+# Memory : 256 MiB
+# =====================================================
+
+resources:
+  requests:
+    cpu: 256m
+    memory: 256Mi
+
+  limits:
+    # TODO: Validate through Azure Monitor after migration.
+    cpu: 512m
+    memory: 512Mi
+
+
+# =====================================================
+# NON-SENSITIVE ENVIRONMENT VARIABLES
+# =====================================================
+
+env:
+  DATA_API_URL: "https://datafeed.rewn.io/v2"
+
+  # Dependency:
+  # deal-negotiator-api --> Redis
+  #
+  # TODO: Update this hostname after Redis is migrated to AKS/Azure.
+  REDIS_HOST: "redis--develop.rewn-develop-state"
+
+  REDIS_PORT: "6379"
+
+  MYSQL_API_URL: "https://mysql.dev.rewn.io/v1"
+
+  NODE_ENV: development
+
+  # Dependency:
+  # deal-negotiator-api --> MongoDB
+  #
+  # TODO: Update hostname after MongoDB migration.
+  DB_HOST: "mongo--develop.rewn-develop-state"
+
+  JWKS_ENDPOINT: "https://auth.dev.rewn.io/oidc/jwks"
+
+  APP_DOMAIN: "https://deal-negotiator.dev.rewn.io"
+
+
+# =====================================================
+# SECRETS
+# Azure Key Vault
+# =====================================================
+
+keyVault:
+  enabled: true
+
+  # TODO: Replace with actual Azure Key Vault name
+  name: <keyvault-name>
+
+  secrets:
+    # MAILGUN_KEY from ECS environment.
+    # Store actual value only in Azure Key Vault.
+    - mailgun-key
+
+
+# =====================================================
+# STORAGE
+# ECS Task Definition has NO volumes or mountPoints.
+# Therefore no persistent storage is currently required.
+# =====================================================
+
+storage:
+  enabled: false
+
+
+# =====================================================
+# LOGGING
+#
+# ECS Source:
+# CloudWatch Group:
+# /ecs/deal-negotiator-api--develop
+#
+# Azure Target:
+# Azure Monitor + Log Analytics
+# =====================================================
+
+logging:
+  enabled: true
+  provider: azureMonitor
+
+  # TODO:
+  # Configure AKS monitoring / Container Insights.
+
+
+# =====================================================
+# INGRESS
+# External URL:
+# https://deal-negotiator.dev.rewn.io
+# =====================================================
+
+ingress:
+  enabled: true
+
+  # TODO: Change based on final AKS ingress architecture.
+  className: nginx
+
+  hosts:
+    - host: deal-negotiator.dev.rewn.io
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls:
+    enabled: true
+
+    # TODO: Configure TLS certificate from Azure Key Vault
+    # or cert-manager.
+    secretName: deal-negotiator-api-develop-tls
+
+
+# =====================================================
+# AUTOSCALING
+# =====================================================
+
+autoscaling:
+  enabled: false
+
+  # TODO: Enable after load testing.
+  minReplicas: 1
+  maxReplicas: 3
+
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

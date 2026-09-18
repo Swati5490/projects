@@ -1,0 +1,83 @@
+replicaCount: 1
+
+image:
+  # TODO: AKS migration ke time image ko Azure Container Registry (ACR) me migrate karein
+  repository: private-lender-marketplace-api
+  tag: develop
+  pullPolicy: Always
+
+container:
+  name: private-lender-marketplace-api
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    # ECS task CPU = 1024, Memory = 3072
+    cpu: 1000m
+    memory: 3Gi
+
+  limits:
+    # TODO: Actual CPU/Memory utilization dekhkar limits tune karni hain
+    cpu: 1000m
+    memory: 3Gi
+
+env:
+  NODE_ENV: development
+  LOGGING_LEVEL: info
+
+  # Service-to-service communication
+  ACCOUNT_API_URL: "https://account.dev.rewn.io"
+  AUTH_API_URL: "https://auth.dev.rewn.io"
+  MYSQL_API_URL: "https://mysql.dev.rewn.io/v1"
+  JWKS_ENDPOINT: "https://auth.dev.rewn.io/oidc/jwks"
+
+  # Redis
+  REDIS_HOST: "redis--develop.rewn-develop-state"
+  REDIS_PORT: "6379"
+
+  # MongoDB
+  DB_HOSTS: "mongodevrep1.rewn-state:37451,mongodevrep2.rewn-state:37451,mongodevrep3.rewn-state:37451"
+  DB_USERNAME: "mongo_admin"
+
+  # Application configuration
+  APP_DOMAIN: "plm-api.dev.rewn.io"
+  SEEDING: "false"
+
+  # AWS configuration - migration ke baad Azure equivalent review karna hoga
+  AWS_REGION: "us-east-1"
+  AWS_ACCESS_KEY_ID: "<from-key-vault>"
+  PLM_DOCUMENT_KMS_KEY_ARN: "arn:aws:kms:us-east-1:770526846351:key/366d4c91-ee00-4596-9e40-a55b25ef457b"
+  PLM_DOCUMENT_BUCKET: "plm-private-documents-770526846351-us-east-1-an"
+
+  # Comet configuration
+  COMET_APP_ID: "25941202267ba6be"
+  COMET_REGION_CODE: "US"
+
+# Sensitive values Azure Key Vault se Secrets Store CSI Driver ke through inject honge
+keyVault:
+  enabled: true
+
+  secrets:
+    - STRIPE_SECRET_KEY
+    - AWS_SECRET_ACCESS_KEY
+    - COMET_API_KEY
+    - MAILGUN_KEY
+    - COMET_AUTH_TOKEN
+    - STRIPE_WEBHOOK_SECRET
+    - DB_PASSWORD
+
+# Azure AKS monitoring
+azureMonitor:
+  enabled: true
+  # Container Insights / Azure Monitor Agent
+  # AKS cluster level par configured hoga
+
+ingress:
+  enabled: false
+  # TODO: Confirm karna hai ki PLM API externally accessible hai ya
+  # sirf other microservices ke through access hoti hai.
